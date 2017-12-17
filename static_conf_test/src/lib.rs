@@ -25,3 +25,11 @@ fn test_simple_values()
     assert_eq!(CONFIG.one_point_five, 1.5);
     assert_eq!(CONFIG.floaty, 123.456789);
 }
+
+#[test]
+fn test_simple_array_values()
+{
+    assert_eq!(CONFIG.coord, [-5.0, 5.0].as_ref());
+    assert_eq!(CONFIG.color, [0, 64, 128, 255].as_ref());
+    assert_eq!(CONFIG.words, ["one", "two", "three"].as_ref());
+}
