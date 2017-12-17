@@ -98,7 +98,7 @@ pub struct Config {
 
         for (field_name, value) in raw_config.iter()
         {
-            let field_value = value_string(value);
+            let field_value = value_string(value, 4);
             code.push_str(&format!("    {}: {},\n", field_name, field_value));
         }
 
@@ -206,7 +206,7 @@ fn type_string(value: &RawValue) -> String
 }
 
 
-fn value_string(value: &RawValue) -> String
+fn value_string(value: &RawValue, indentation: usize) -> String
 {
     match *value
     {
@@ -225,14 +225,14 @@ fn value_string(value: &RawValue) -> String
         RawValue::F64(value) => float_string(value),
         RawValue::String(ref value) => format!("Cow::Borrowed(\"{}\")", value),
         RawValue::Array(ref values) => {
-            let value_strings = values.iter().map(value_string).collect::<Vec<String>>();
+            let value_strings = values.iter().map(|value| value_string(value, indentation + 4)).collect::<Vec<String>>();
             format!("Cow::Borrowed(&[{}])", value_strings.join(", "))
         },
         RawValue::Struct(ref struct_name, ref values) => {
             let values = values.iter()
-                .map(|(field, value)| format!("    {}: {},", field, value_string(value)))
+                .map(|(field, value)| format!("{:indent$}{}: {},\n", "", field, value_string(value, indentation + 4), indent = indentation + 4))
                 .collect::<Vec<String>>();
-            format!("{} {{\n{}}}", struct_name, values.join("\n"))
+            format!("{} {{\n{}{:indent$}}}", struct_name, values.join(""), "", indent = indentation)
         },
     }
 }
