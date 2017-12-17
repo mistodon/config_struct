@@ -1,1 +1,7 @@
 name = "Config name"
+number = 100
+is_config = true
+is_not_config = false
+one_point_zero = 1.0
+one_point_five = 1.5
+floaty = 123.456789
