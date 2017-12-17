@@ -6,11 +6,10 @@ use std::path::Path;
 use toml::Value;
 
 
-type RawConfig = BTreeMap<String, RawValue>;
+pub type RawConfig = BTreeMap<String, RawValue>;
 
 
-#[allow(dead_code)]
-enum RawValue
+pub enum RawValue
 {
     Bool(bool),
     I8(i8),
@@ -50,7 +49,7 @@ where
 
     let raw_config: RawConfig = toml_object.into_iter().map(|(key, value)|
     {
-        let value = toml_to_raw_value("Config", &key, value);
+        let value = toml_to_raw_value("_Config", &key, value);
         (key, value)
     }).collect();
 
