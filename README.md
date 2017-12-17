@@ -41,9 +41,7 @@ TODO
 ---
 
 ### For sure
--   Work with any input data (currently only handling strings)
 -   Allow specifying which traits to derive
--   Allow nested objects
 -   Decent error handling
 -   Allow naming the root struct
 
