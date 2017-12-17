@@ -6,8 +6,11 @@ extern crate toml;
 use std::collections::HashMap;
 use std::path::Path;
 
+use toml::Value;
+
 
 type RawConfig = HashMap<String, RawValue>;
+
 
 enum RawValue
 {
@@ -37,7 +40,6 @@ where
 {
     use std::fs::File;
     use std::io::{ Read, Write };
-    use toml::Value;
 
     let config_source = {
         let mut buffer = String::new();
@@ -50,17 +52,7 @@ where
 
     let raw_config: RawConfig = toml_object.into_iter().map(|(key, value)|
     {
-        let value = match value
-        {
-            Value::Boolean(value) => RawValue::Bool(value),
-            Value::Integer(value) => RawValue::I64(value),
-            Value::Float(value) => RawValue::F64(value),
-            Value::String(value) => RawValue::String(value),
-            Value::Datetime(value) => RawValue::String(value.to_string()),
-            Value::Array(value) => unimplemented!(),
-            Value::Table(value) => unimplemented!()
-        };
-        (key, value)
+        (key, toml_to_raw_value(value))
     }).collect();
 
     let config_rust_code = {
@@ -103,6 +95,22 @@ pub const CONFIG: Config = Config {
 }
 
 
+fn toml_to_raw_value(value: Value) -> RawValue
+{
+    match value
+    {
+        Value::Boolean(value) => RawValue::Bool(value),
+        Value::Integer(value) => RawValue::I64(value),
+        Value::Float(value) => RawValue::F64(value),
+        Value::String(value) => RawValue::String(value),
+        Value::Datetime(value) => RawValue::String(value.to_string()),
+        Value::Array(values) =>
+            RawValue::Array(values.into_iter().map(toml_to_raw_value).collect()),
+        Value::Table(value) => unimplemented!()
+    }
+}
+
+
 fn type_string(value: &RawValue) -> String
 {
     match *value
@@ -121,7 +129,15 @@ fn type_string(value: &RawValue) -> String
         RawValue::F32(_) => "f32".to_owned(),
         RawValue::F64(_) => "f64".to_owned(),
         RawValue::String(_) => "Cow<'static, str>".to_owned(),
-        RawValue::Array(_) => unimplemented!(),
+        RawValue::Array(ref values) => {
+            assert!(!values.is_empty());
+            let candidate = type_string(&values[0]);
+            let all_same_type = values.iter()
+                .map(type_string)
+                .all(|s| s == candidate);
+            assert!(all_same_type);
+            format!("Cow<'static, [{}]>", candidate)
+        },
         RawValue::Struct(_, _) => unimplemented!(),
     }
 }
@@ -145,7 +161,10 @@ fn value_string(value: &RawValue) -> String
         RawValue::F32(value) => float_string(value),
         RawValue::F64(value) => float_string(value),
         RawValue::String(ref value) => format!("Cow::Borrowed(\"{}\")", value),
-        RawValue::Array(_) => unimplemented!(),
+        RawValue::Array(ref values) => {
+            let value_strings = values.iter().map(value_string).collect::<Vec<String>>();
+            format!("Cow::Borrowed(&[{}])", value_strings.join(", "))
+        },
         RawValue::Struct(_, _) => unimplemented!(),
     }
 }
@@ -176,6 +195,35 @@ mod tests
         assert_eq!(float_string(1.5), "1.5");
         assert_eq!(float_string(-2.5), "-2.5");
         assert_eq!(float_string(123.456789), "123.456789");
+    }
+
+
+    fn test_array<F, T>(f: F, vec: Vec<T>) -> RawValue
+    where
+        F: Fn(T) -> RawValue
+    {
+        RawValue::Array(vec.into_iter().map(|x| f(x)).collect())
+    }
+
+    #[test]
+    fn simple_array_type_string_tests()
+    {
+        assert_eq!(type_string(&test_array(RawValue::F32, vec![1.0, 2.0])), "Cow<'static, [f32]>");
+        assert_eq!(type_string(&test_array(RawValue::I32, vec![1, -2])), "Cow<'static, [i32]>");
+        assert_eq!(
+            type_string(&test_array(RawValue::String, vec!["one".to_owned(), "two".to_owned()])),
+            "Cow<'static, [Cow<'static, str>]>");
+    }
+
+    #[test]
+    fn simple_array_value_strings_tests()
+    {
+        assert_eq!(value_string(&test_array(RawValue::I32, vec![1])), "Cow::Borrowed(&[1])");
+        assert_eq!(value_string(&test_array(RawValue::I32, vec![1, 3])), "Cow::Borrowed(&[1, 3])");
+        assert_eq!(value_string(&test_array(RawValue::I32, vec![1, 3, 5])), "Cow::Borrowed(&[1, 3, 5])");
+        assert_eq!(
+            value_string(&test_array(RawValue::String, vec!["one".to_owned(), "two".to_owned()])),
+            "Cow::Borrowed(&[Cow::Borrowed(\"one\"), Cow::Borrowed(\"two\")])");
     }
 }
 
