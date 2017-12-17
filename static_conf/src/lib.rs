@@ -160,7 +160,7 @@ fn toml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawVa
                 .collect())
         },
         Value::Table(values) => {
-            let sub_struct_name = format!("{}_{}", super_struct, super_key);
+            let sub_struct_name = format!("{}__{}", super_struct, super_key);
             let values = values.into_iter()
                 .map(
                     |(key, value)|
