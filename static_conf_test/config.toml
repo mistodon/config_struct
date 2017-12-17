@@ -27,3 +27,9 @@ magnitude = 1000000000
 [table.table_again]
 name = "OK this is just getting ridiculous"
 description = "getting ridiculous"
+
+[[arrayble]]
+description = "just unbelievable"
+
+[[arrayble]]
+description = "what is this syntax"
