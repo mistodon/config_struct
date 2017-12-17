@@ -82,6 +82,13 @@ pub struct Config {
             {
                 generate_sub_struct_declarations(&mut substructs, &struct_name, &fields);
             }
+            else if let &RawValue::Array(ref values) = value
+            {
+                if let RawValue::Struct(ref struct_name, ref fields) = values[0]
+                {
+                    generate_sub_struct_declarations(&mut substructs, &struct_name, &fields);
+                }
+            }
         }
 
         code.push_str(&substructs);
@@ -126,6 +133,13 @@ pub struct {} {{
         if let &RawValue::Struct(ref struct_name, ref fields) = value
         {
             generate_sub_struct_declarations(output, &struct_name, &fields);
+        }
+        else if let &RawValue::Array(ref values) = value
+        {
+            if let RawValue::Struct(ref struct_name, ref fields) = values[0]
+            {
+                generate_sub_struct_declarations(output, &struct_name, &fields);
+            }
         }
     }
 }

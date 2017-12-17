@@ -59,3 +59,10 @@ fn test_nested_tables()
     assert_eq!(CONFIG.table.table_again.description, "getting ridiculous");
 }
 
+#[test]
+fn test_array_of_tables()
+{
+    assert_eq!(CONFIG.arrayble[0].description, "just unbelievable");
+    assert_eq!(CONFIG.arrayble[1].description, "what is this syntax");
+}
+
