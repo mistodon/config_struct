@@ -1,0 +1,11 @@
+[package]
+name = "static_conf_test"
+version = "0.1.0"
+authors = ["Pirh"]
+
+[build-dependencies.static_conf]
+path = "../static_conf"
+
+[dev-dependencies]
+serde = "~1.0.0"
+serde_derive = "~1.0.0"
