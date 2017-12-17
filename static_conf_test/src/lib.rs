@@ -2,6 +2,8 @@
 
 #[macro_use]
 extern crate serde_derive;
+extern crate toml;
+
 
 mod config;
 
@@ -12,6 +14,14 @@ use config::{ Config, CONFIG };
 fn test_declarations()
 {
     let _conf: &Config = &CONFIG;
+}
+
+#[test]
+fn test_deserialization()
+{
+    let toml_source = include_str!("../config.toml");
+    let conf: Config = toml::from_str(toml_source).unwrap();
+    assert_eq!(conf.name, "Config name");
 }
 
 #[test]
@@ -34,3 +44,18 @@ fn test_simple_array_values()
     assert_eq!(CONFIG.words, ["one", "two", "three"].as_ref());
     assert_eq!(CONFIG.points, [[1, 2].as_ref(), [3, 4].as_ref(), [5, 6].as_ref()].as_ref());
 }
+
+#[test]
+fn test_table_values()
+{
+    assert_eq!(CONFIG.table.name, "A table");
+    assert_eq!(CONFIG.table.magnitude, 1000000000);
+}
+
+#[test]
+fn test_nested_tables()
+{
+    assert_eq!(CONFIG.table.table_again.name, "OK this is just getting ridiculous");
+    assert_eq!(CONFIG.table.table_again.description, "getting ridiculous");
+}
+

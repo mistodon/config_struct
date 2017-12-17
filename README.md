@@ -48,6 +48,7 @@ TODO
 -   Allow naming the root struct
 
 ### Eventually
+-   Nicer, more flexible API
 -   Work with yaml, json, etc.
 -   Features to opt in/out of the generated const
 -   Allow generating the const only in release mode
