@@ -32,4 +32,5 @@ fn test_simple_array_values()
     assert_eq!(CONFIG.coord, [-5.0, 5.0].as_ref());
     assert_eq!(CONFIG.color, [0, 64, 128, 255].as_ref());
     assert_eq!(CONFIG.words, ["one", "two", "three"].as_ref());
+    assert_eq!(CONFIG.points, [[1, 2].as_ref(), [3, 4].as_ref(), [5, 6].as_ref()].as_ref());
 }
