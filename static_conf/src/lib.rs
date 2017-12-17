@@ -52,8 +52,13 @@ where
     {
         let value = match value
         {
+            Value::Boolean(value) => RawValue::Bool(value),
+            Value::Integer(value) => RawValue::I64(value),
+            Value::Float(value) => RawValue::F64(value),
             Value::String(value) => RawValue::String(value),
-            _ => unimplemented!()
+            Value::Datetime(value) => RawValue::String(value.to_string()),
+            Value::Array(value) => unimplemented!(),
+            Value::Table(value) => unimplemented!()
         };
         (key, value)
     }).collect();
@@ -71,7 +76,7 @@ pub struct Config {
         for (field_name, value) in raw_config.iter()
         {
             let field_type = type_string(value);
-            code.push_str(&format!("    pub {}: {}\n", field_name, field_type));
+            code.push_str(&format!("    pub {}: {},\n", field_name, field_type));
         }
 
         code.push_str(
@@ -83,7 +88,7 @@ pub const CONFIG: Config = Config {
         for (field_name, value) in raw_config.iter()
         {
             let field_value = value_string(value);
-            code.push_str(&format!("    {}: {}\n", field_name, field_value));
+            code.push_str(&format!("    {}: {},\n", field_name, field_value));
         }
 
         code.push_str(
@@ -102,8 +107,22 @@ fn type_string(value: &RawValue) -> String
 {
     match *value
     {
-        RawValue::String(ref value) => "Cow<'static, str>".to_owned(),
-        _ => unimplemented!()
+        RawValue::Bool(_) => "bool".to_owned(),
+        RawValue::I8(_) => "i8".to_owned(),
+        RawValue::I16(_) => "i16".to_owned(),
+        RawValue::I32(_) => "i32".to_owned(),
+        RawValue::I64(_) => "i64".to_owned(),
+        RawValue::U8(_) => "u8".to_owned(),
+        RawValue::U16(_) => "u16".to_owned(),
+        RawValue::U32(_) => "u32".to_owned(),
+        RawValue::U64(_) => "u64".to_owned(),
+        RawValue::Isize(_) => "isize".to_owned(),
+        RawValue::Usize(_) => "usize".to_owned(),
+        RawValue::F32(_) => "f32".to_owned(),
+        RawValue::F64(_) => "f64".to_owned(),
+        RawValue::String(_) => "Cow<'static, str>".to_owned(),
+        RawValue::Array(_) => unimplemented!(),
+        RawValue::Struct(_, _) => unimplemented!(),
     }
 }
 
@@ -112,7 +131,51 @@ fn value_string(value: &RawValue) -> String
 {
     match *value
     {
+        RawValue::Bool(value) => value.to_string(),
+        RawValue::I8(value) => value.to_string(),
+        RawValue::I16(value) => value.to_string(),
+        RawValue::I32(value) => value.to_string(),
+        RawValue::I64(value) => value.to_string(),
+        RawValue::U8(value) => value.to_string(),
+        RawValue::U16(value) => value.to_string(),
+        RawValue::U32(value) => value.to_string(),
+        RawValue::U64(value) => value.to_string(),
+        RawValue::Isize(value) => value.to_string(),
+        RawValue::Usize(value) => value.to_string(),
+        RawValue::F32(value) => float_string(value),
+        RawValue::F64(value) => float_string(value),
         RawValue::String(ref value) => format!("Cow::Borrowed(\"{}\")", value),
-        _ => unimplemented!()
+        RawValue::Array(_) => unimplemented!(),
+        RawValue::Struct(_, _) => unimplemented!(),
     }
 }
+
+
+fn float_string<T>(float: T) -> String
+where
+    T: ToString
+{
+    let mut result = float.to_string();
+    if !result.contains('.')
+    {
+        result.push_str(".0");
+    }
+    result
+}
+
+
+#[cfg(test)]
+mod tests
+{
+    use super::*;
+
+    #[test]
+    fn float_string_tests()
+    {
+        assert_eq!(float_string(1.0), "1.0");
+        assert_eq!(float_string(1.5), "1.5");
+        assert_eq!(float_string(-2.5), "-2.5");
+        assert_eq!(float_string(123.456789), "123.456789");
+    }
+}
+
