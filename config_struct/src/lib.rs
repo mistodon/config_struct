@@ -1,8 +1,15 @@
 #[cfg(feature = "toml-parsing")]
 extern crate toml;
 
+#[cfg(feature = "yaml-parsing")]
+extern crate serde_yaml;
+
+
 #[cfg(feature = "toml-parsing")]
 pub mod toml_parsing;
+
+#[cfg(feature = "yaml-parsing")]
+pub mod yaml_parsing;
 
 
 use std::collections::BTreeMap;
@@ -10,6 +17,7 @@ use std::collections::BTreeMap;
 
 pub enum RawValue
 {
+    Unit,
     Bool(bool),
     I8(i8),
     I16(i16),
@@ -87,6 +95,7 @@ fn type_string(value: &RawValue) -> String
 {
     match *value
     {
+        RawValue::Unit => "()".to_owned(),
         RawValue::Bool(_) => "bool".to_owned(),
         RawValue::I8(_) => "i8".to_owned(),
         RawValue::I16(_) => "i16".to_owned(),
@@ -119,6 +128,7 @@ fn value_string(value: &RawValue, indentation: usize) -> String
 {
     match *value
     {
+        RawValue::Unit => "()".to_string(),
         RawValue::Bool(value) => value.to_string(),
         RawValue::I8(value) => value.to_string(),
         RawValue::I16(value) => value.to_string(),

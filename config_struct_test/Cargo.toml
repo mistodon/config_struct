@@ -5,9 +5,10 @@ authors = ["Pirh"]
 
 [build-dependencies.config_struct]
 path = "../config_struct"
-features = ["toml-parsing"]
+features = ["toml-parsing", "yaml-parsing"]
 
 [dev-dependencies]
 serde = "~1.0.0"
 serde_derive = "~1.0.0"
+serde_yaml = "~0.7.3"
 toml = "~0.4.5"
