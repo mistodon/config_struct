@@ -56,91 +56,21 @@ where
     let config_rust_code = {
         let mut code = String::new();
 
+        code.push_str("use std::borrow::Cow;\n\n");
+
+        generate_struct_declarations(&mut code, "Config", &raw_config);
+
+        let raw_config_as_value = RawValue::Struct("Config".to_owned(), raw_config);
         code.push_str(
-"use std::borrow::Cow;
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Config {
-");
-
-        for (field_name, value) in raw_config.iter()
-        {
-            let field_type = type_string(value);
-            code.push_str(&format!("    pub {}: {},\n", field_name, field_type));
-        }
-
-        code.push_str(
-"}
-
-");
-
-        let mut substructs = String::new();
-        for (_, value) in raw_config.iter()
-        {
-            if let &RawValue::Struct(ref struct_name, ref fields) = value
-            {
-                generate_sub_struct_declarations(&mut substructs, &struct_name, &fields);
-            }
-            else if let &RawValue::Array(ref values) = value
-            {
-                if let RawValue::Struct(ref struct_name, ref fields) = values[0]
-                {
-                    generate_sub_struct_declarations(&mut substructs, &struct_name, &fields);
-                }
-            }
-        }
-
-        code.push_str(&substructs);
-
-        code.push_str(
-"pub const CONFIG: Config = Config {
-");
-
-        for (field_name, value) in raw_config.iter()
-        {
-            let field_value = value_string(value, 4);
-            code.push_str(&format!("    {}: {},\n", field_name, field_value));
-        }
-
-        code.push_str(
-"};
-");
+            &format!(
+                "pub const CONFIG: Config = {};\n",
+                value_string(&raw_config_as_value, 0)));
 
         code
     };
 
     let destination_file = &mut File::create(destination_filename).unwrap();
     destination_file.write_all(config_rust_code.as_bytes()).unwrap();
-}
-
-fn generate_sub_struct_declarations(output: &mut String, struct_name: &str, fields: &BTreeMap<String, RawValue>)
-{
-    let field_strings = fields.iter()
-        .map(|(name, value)| format!("    pub {}: {},", name, type_string(value)))
-        .collect::<Vec<String>>();
-    output.push_str(&format!(
-"#[derive(Debug, Clone, Serialize, Deserialize)]
-#[allow(non_camel_case_types)]
-pub struct {} {{
-{}
-}}
-
-", struct_name, field_strings.join("\n")));
-
-    for (_, value) in fields
-    {
-        if let &RawValue::Struct(ref struct_name, ref fields) = value
-        {
-            generate_sub_struct_declarations(output, &struct_name, &fields);
-        }
-        else if let &RawValue::Array(ref values) = value
-        {
-            if let RawValue::Struct(ref struct_name, ref fields) = values[0]
-            {
-                generate_sub_struct_declarations(output, &struct_name, &fields);
-            }
-        }
-    }
 }
 
 
@@ -169,6 +99,37 @@ fn toml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawVa
                     })
                 .collect();
             RawValue::Struct(sub_struct_name, values)
+        }
+    }
+}
+
+
+fn generate_struct_declarations(output: &mut String, struct_name: &str, fields: &BTreeMap<String, RawValue>)
+{
+    let field_strings = fields.iter()
+        .map(|(name, value)| format!("    pub {}: {},", name, type_string(value)))
+        .collect::<Vec<String>>();
+    output.push_str(&format!(
+"#[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(non_camel_case_types)]
+pub struct {} {{
+{}
+}}
+
+", struct_name, field_strings.join("\n")));
+
+    for (_, value) in fields
+    {
+        if let &RawValue::Struct(ref struct_name, ref fields) = value
+        {
+            generate_struct_declarations(output, &struct_name, &fields);
+        }
+        else if let &RawValue::Array(ref values) = value
+        {
+            if let RawValue::Struct(ref struct_name, ref fields) = values[0]
+            {
+                generate_struct_declarations(output, &struct_name, &fields);
+            }
         }
     }
 }
