@@ -66,18 +66,18 @@ pub struct {} {{
 
 ", struct_value.struct_name, field_strings.join("\n")));
 
-    for (_, value) in &struct_value.fields
+    for value in struct_value.fields.values()
     {
-        if let &RawValue::Struct(ref struct_value) = value
+        match *value
         {
-            generate_struct_declarations(output, struct_value);
-        }
-        else if let &RawValue::Array(ref values) = value
-        {
-            if let RawValue::Struct(ref struct_value) = values[0]
-            {
-                generate_struct_declarations(output, struct_value);
+            RawValue::Struct(ref value) => generate_struct_declarations(output, value),
+            RawValue::Array(ref values) => {
+                if let RawValue::Struct(ref value) = values[0]
+                {
+                    generate_struct_declarations(output, value);
+                }
             }
+            _ => ()
         }
     }
 }
@@ -152,7 +152,7 @@ fn struct_value_string(value: &RawStructValue, indentation: usize) -> String
 
 fn float_string<T>(float: T) -> String
 where
-    T: ToString
+    T: ToString + Copy
 {
     let mut result = float.to_string();
     if !result.contains('.')
