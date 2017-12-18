@@ -6,6 +6,8 @@ authors = ["Pirh"]
 [features]
 default = []
 toml-parsing = ["toml"]
+yaml-parsing = ["serde_yaml"]
 
 [dependencies]
 toml = { version = "~0.4.5", optional = true }
+serde_yaml = { version = "0.7.3", optional = true }
