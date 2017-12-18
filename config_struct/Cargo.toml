@@ -3,7 +3,9 @@ name = "config_struct"
 version = "0.1.0"
 authors = ["Pirh"]
 
+[features]
+default = []
+toml-parsing = ["toml"]
+
 [dependencies]
-serde = "~1.0.0"
-serde_derive = "~1.0.0"
-toml = "~0.4.5"
+toml = { version = "~0.4.5", optional = true }

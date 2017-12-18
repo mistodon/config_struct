@@ -7,7 +7,7 @@ extern crate toml;
 
 mod config;
 
-use config::{ Config, CONFIG };
+use config::toml::{ Config, CONFIG };
 
 
 #[test]

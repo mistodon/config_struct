@@ -1,16 +1,12 @@
+#[cfg(feature = "toml-parsing")]
 extern crate toml;
 
+#[cfg(feature = "toml-parsing")]
+pub mod toml_parsing;
+
+
 use std::collections::BTreeMap;
-use std::path::Path;
 
-use toml::Value;
-
-
-pub struct RawStructValue
-{
-    pub struct_name: String,
-    pub fields: BTreeMap<String, RawValue>
-}
 
 pub enum RawValue
 {
@@ -32,82 +28,27 @@ pub enum RawValue
     Struct(RawStructValue)
 }
 
-
-pub fn construct_config<S, D>(config_filename: S, destination_filename: D)
-where
-    S: AsRef<Path>,
-    D: AsRef<Path>
+pub struct RawStructValue
 {
-    use std::fs::File;
-    use std::io::{ Read, Write };
-
-    let config_source = {
-        let mut buffer = String::new();
-        let file = &mut File::open(&config_filename).unwrap();
-        file.read_to_string(&mut buffer).unwrap();
-        buffer
-    };
-
-    let toml_object: BTreeMap<String, Value> = toml::from_str(&config_source).unwrap();
-
-    let raw_config: RawStructValue = {
-        let struct_name = "Config".to_owned();
-        let fields = toml_object.into_iter().map(|(key, value)|
-        {
-            let value = toml_to_raw_value("_Config", &key, value);
-            (key, value)
-        }).collect();
-        RawStructValue { struct_name, fields }
-    };
-
-    let config_rust_code = {
-        let mut code = String::new();
-
-        code.push_str("use std::borrow::Cow;\n\n");
-
-        generate_struct_declarations(&mut code, &raw_config);
-
-        let raw_config_as_value = RawValue::Struct(raw_config);
-        code.push_str(
-            &format!(
-                "pub const CONFIG: Config = {};\n",
-                value_string(&raw_config_as_value, 0)));
-
-        code
-    };
-
-    let destination_file = &mut File::create(destination_filename).unwrap();
-    destination_file.write_all(config_rust_code.as_bytes()).unwrap();
+    pub struct_name: String,
+    pub fields: BTreeMap<String, RawValue>
 }
 
 
-fn toml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawValue
+pub fn create_config_module(raw_config: &RawStructValue) -> String
 {
-    match value
-    {
-        Value::Boolean(value) => RawValue::Bool(value),
-        Value::Integer(value) => RawValue::I64(value),
-        Value::Float(value) => RawValue::F64(value),
-        Value::String(value) => RawValue::String(value),
-        Value::Datetime(value) => RawValue::String(value.to_string()),
-        Value::Array(values) => {
-            RawValue::Array(values.into_iter()
-                .map(|value| toml_to_raw_value(super_struct, super_key, value))
-                .collect())
-        },
-        Value::Table(values) => {
-            let sub_struct_name = format!("{}__{}", super_struct, super_key);
-            let values = values.into_iter()
-                .map(
-                    |(key, value)|
-                    {
-                        let value = toml_to_raw_value(&sub_struct_name, &key, value);
-                        (key, value)
-                    })
-                .collect();
-            RawValue::Struct(RawStructValue { struct_name: sub_struct_name, fields: values })
-        }
-    }
+    let mut code = String::new();
+
+    code.push_str("use std::borrow::Cow;\n\n");
+
+    generate_struct_declarations(&mut code, raw_config);
+
+    code.push_str(
+        &format!(
+            "pub const CONFIG: Config = {};\n",
+            struct_value_string(raw_config, 0)));
+
+    code
 }
 
 
@@ -196,13 +137,16 @@ fn value_string(value: &RawValue, indentation: usize) -> String
             let value_strings = values.iter().map(|value| value_string(value, indentation + 4)).collect::<Vec<String>>();
             format!("Cow::Borrowed(&[{}])", value_strings.join(", "))
         },
-        RawValue::Struct(ref struct_value) => {
-            let values = struct_value.fields.iter()
-                .map(|(field, value)| format!("{:indent$}{}: {},\n", "", field, value_string(value, indentation + 4), indent = indentation + 4))
-                .collect::<Vec<String>>();
-            format!("{} {{\n{}{:indent$}}}", struct_value.struct_name, values.join(""), "", indent = indentation)
-        },
+        RawValue::Struct(ref struct_value) => struct_value_string(struct_value, indentation),
     }
+}
+
+fn struct_value_string(value: &RawStructValue, indentation: usize) -> String
+{
+    let values = value.fields.iter()
+        .map(|(field, value)| format!("{:indent$}{}: {},\n", "", field, value_string(value, indentation + 4), indent = indentation + 4))
+        .collect::<Vec<String>>();
+    format!("{} {{\n{}{:indent$}}}", value.struct_name, values.join(""), "", indent = indentation)
 }
 
 
