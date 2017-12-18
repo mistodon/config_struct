@@ -1,4 +1,4 @@
-static_conf
+config_struct
 ===
 
 This is a library for converting config files into matching source files at build time.
@@ -9,10 +9,10 @@ Usage
 Use this library in a `build.rs` file:
 
 ```rust
-extern crate static_conf;
+extern crate config_struct;
 
 fn main() {
-    static_conf::construct_config("config.toml", "src/config.rs");
+    config_struct::construct_config("config.toml", "src/config.rs");
 }
 ```
 

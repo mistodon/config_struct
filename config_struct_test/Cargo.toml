@@ -1,10 +1,10 @@
 [package]
-name = "static_conf_test"
+name = "config_struct_test"
 version = "0.1.0"
 authors = ["Pirh"]
 
-[build-dependencies.static_conf]
-path = "../static_conf"
+[build-dependencies.config_struct]
+path = "../config_struct"
 
 [dev-dependencies]
 serde = "~1.0.0"
