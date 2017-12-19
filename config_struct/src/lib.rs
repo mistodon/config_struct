@@ -12,6 +12,9 @@ pub mod toml_parsing;
 pub mod yaml_parsing;
 
 
+extern crate failure;
+
+
 use std::collections::BTreeMap;
 
 
@@ -80,7 +83,7 @@ pub struct {} {{
         {
             RawValue::Struct(ref value) => generate_struct_declarations(output, value),
             RawValue::Array(ref values) => {
-                if let RawValue::Struct(ref value) = values[0]
+                if let Some(&RawValue::Struct(ref value)) = values.get(0)
                 {
                     generate_struct_declarations(output, value);
                 }
@@ -111,13 +114,19 @@ fn type_string(value: &RawValue) -> String
         RawValue::F64(_) => "f64".to_owned(),
         RawValue::String(_) => "Cow<'static, str>".to_owned(),
         RawValue::Array(ref values) => {
-            assert!(!values.is_empty());
-            let candidate = type_string(&values[0]);
-            let all_same_type = values.iter()
-                .map(type_string)
-                .all(|s| s == candidate);
-            assert!(all_same_type);
-            format!("Cow<'static, [{}]>", candidate)
+            let element_type = match values.get(0)
+            {
+                Some(element) => {
+                    let candidate = type_string(element);
+                    let all_same_type = values.iter()
+                        .map(type_string)
+                        .all(|s| s == candidate);
+                    assert!(all_same_type);
+                    candidate
+                },
+                None => type_string(&RawValue::Unit)
+            };
+            format!("Cow<'static, [{}]>", element_type)
         },
         RawValue::Struct(ref struct_value) => struct_value.struct_name.clone(),
     }

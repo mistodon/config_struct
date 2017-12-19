@@ -1,6 +1,6 @@
 ---
 name: Config name
-empty: null
+unit: null
 number: 100
 is_config: true
 is_not_config: false
@@ -23,4 +23,4 @@ array_of_structs:
     -
         name: second
         n: 1
-
+empty: []

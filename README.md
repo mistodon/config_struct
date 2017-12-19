@@ -47,12 +47,13 @@ TODO
 
 ### Eventually
 -   Nicer, more flexible API
--   Work with yaml, json, etc.
--   Features to opt in/out of the generated const
+-   Features (functions?) to opt in/out of the generated const
 -   Allow generating the const only in release mode
+-   Work with Ron and JSON
 
 ### Like, mayyybe
 -   Possibly allow specifying imports, and custom types
 -   Try to avoid generating the same struct twice
 -   Use fixed-size arrays instead of slices for some (configurable) size threshold
+-   If elements of arrays have different keys, take the union and make non-universal members Options?
 

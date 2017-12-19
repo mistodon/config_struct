@@ -34,7 +34,7 @@ mod yaml_tests
     fn test_simple_values()
     {
         assert_eq!(CONFIG.name, "Config name");
-        assert_eq!(CONFIG.empty, ());
+        assert_eq!(CONFIG.unit, ());
         assert_eq!(CONFIG.number, 100);
         assert_eq!(CONFIG.is_config, true);
         assert_eq!(CONFIG.is_not_config, false);
@@ -55,6 +55,13 @@ mod yaml_tests
         assert_eq!(CONFIG.array_of_structs[1].name, "second");
         assert_eq!(CONFIG.array_of_structs[0].n, 0);
         assert_eq!(CONFIG.array_of_structs[1].n, 1);
+    }
+
+    #[test]
+    fn test_empty_array_is_array_of_unit()
+    {
+        let empty: &[()] = &[];
+        assert_eq!(CONFIG.empty, empty);
     }
 }
 
@@ -119,6 +126,13 @@ mod toml_tests
     {
         assert_eq!(CONFIG.arrayble[0].description, "just unbelievable");
         assert_eq!(CONFIG.arrayble[1].description, "what is this syntax");
+    }
+
+    #[test]
+    fn test_empty_array_is_array_of_unit()
+    {
+        let empty: &[()] = &[];
+        assert_eq!(CONFIG.empty, empty);
     }
 }
 
