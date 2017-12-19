@@ -45,7 +45,7 @@ fn yaml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawVa
 {
     match value
     {
-        Value::Null => RawValue::Unit,
+        Value::Null => RawValue::Option(None),
         Value::Bool(value) => RawValue::Bool(value),
         Value::Number(value) => match (value.as_i64(), value.as_u64(), value.as_f64())
         {

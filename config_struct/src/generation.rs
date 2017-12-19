@@ -38,6 +38,7 @@ fn type_string(value: &RawValue) -> String
     {
         RawValue::Unit => "()".to_owned(),
         RawValue::Bool(_) => "bool".to_owned(),
+        RawValue::Char(_) => "char".to_owned(),
         RawValue::I8(_) => "i8".to_owned(),
         RawValue::I16(_) => "i16".to_owned(),
         RawValue::I32(_) => "i32".to_owned(),
@@ -51,6 +52,14 @@ fn type_string(value: &RawValue) -> String
         RawValue::F32(_) => "f32".to_owned(),
         RawValue::F64(_) => "f64".to_owned(),
         RawValue::String(_) => "Cow<'static, str>".to_owned(),
+        RawValue::Option(ref value) => {
+            let element_type = match *value
+            {
+                Some(ref value) => type_string(value),
+                None => type_string(&RawValue::Unit)
+            };
+            format!("Option<{}>", element_type)
+        },
         RawValue::Array(ref values) => {
             let element_type = match values.get(0)
             {
@@ -77,6 +86,7 @@ fn value_string(value: &RawValue, indentation: usize) -> String
     {
         RawValue::Unit => "()".to_string(),
         RawValue::Bool(value) => value.to_string(),
+        RawValue::Char(value) => format!("'{}'", value),
         RawValue::I8(value) => value.to_string(),
         RawValue::I16(value) => value.to_string(),
         RawValue::I32(value) => value.to_string(),
@@ -90,6 +100,11 @@ fn value_string(value: &RawValue, indentation: usize) -> String
         RawValue::F32(value) => float_string(value),
         RawValue::F64(value) => float_string(value),
         RawValue::String(ref value) => format!("Cow::Borrowed(\"{}\")", value),
+        RawValue::Option(ref value) => match *value
+        {
+            Some(ref value) => format!("Some({})", value_string(value, indentation)),
+            None => "None".to_string()
+        },
         RawValue::Array(ref values) => {
             let value_strings = values.iter().map(|value| value_string(value, indentation + 4)).collect::<Vec<String>>();
             format!("Cow::Borrowed(&[{}])", value_strings.join(", "))

@@ -1,9 +1,15 @@
+#[cfg(feature = "ron-parsing")]
+extern crate ron;
+
 #[cfg(feature = "toml-parsing")]
 extern crate toml;
 
 #[cfg(feature = "yaml-parsing")]
 extern crate serde_yaml;
 
+
+#[cfg(feature = "ron-parsing")]
+pub mod ron_parsing;
 
 #[cfg(feature = "toml-parsing")]
 pub mod toml_parsing;
