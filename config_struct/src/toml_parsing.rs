@@ -1,27 +1,16 @@
 use std::path::Path;
 
+use failure::Error;
 use toml::{ self, Value };
 
-use { RawValue, RawStructValue, create_config_module };
+use { RawValue, RawStructValue };
 
 
-pub fn create_module_from_config<S, D>(config_path: S, module_path: D)
-where
-    S: AsRef<Path>,
-    D: AsRef<Path>
+pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, Error>
 {
     use std::collections::BTreeMap;
-    use std::fs::File;
-    use std::io::{ Read, Write };
 
-    let config_source = {
-        let mut buffer = String::new();
-        let file = &mut File::open(&config_path).unwrap();
-        file.read_to_string(&mut buffer).unwrap();
-        buffer
-    };
-
-    let toml_object: BTreeMap<String, Value> = toml::from_str(&config_source).unwrap();
+    let toml_object: BTreeMap<String, Value> = toml::from_str(config_source.as_ref())?;
 
     let raw_config: RawStructValue = {
         let struct_name = "Config".to_owned();
@@ -33,10 +22,22 @@ where
         RawStructValue { struct_name, fields }
     };
 
-    let config_module_source = create_config_module(&raw_config);
+    Ok(raw_config)
+}
 
-    let file = &mut File::create(&module_path).unwrap();
-    file.write_all(config_module_source.as_bytes()).unwrap();
+pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<RawStructValue, Error>
+{
+    let config_source = {
+        use std::fs::File;
+        use std::io::Read;
+
+        let mut buffer = String::new();
+        let file = &mut File::open(&config_path)?;
+        file.read_to_string(&mut buffer)?;
+        buffer
+    };
+
+    parse_config(&config_source)
 }
 
 
