@@ -1,10 +1,12 @@
 use std::collections::BTreeMap;
 
 
+#[derive(Debug)]
 pub enum RawValue
 {
     Unit,
     Bool(bool),
+    Char(char),
     I8(i8),
     I16(i16),
     I32(i32),
@@ -18,10 +20,13 @@ pub enum RawValue
     F32(f32),
     F64(f64),
     String(String),
+    Option(Option<Box<RawValue>>),
     Array(Vec<RawValue>),
     Struct(RawStructValue)
 }
 
+
+#[derive(Debug)]
 pub struct RawStructValue
 {
     pub struct_name: String,

@@ -5,11 +5,13 @@ authors = ["Pirh"]
 
 [features]
 default = []
+ron-parsing = ["ron"]
 toml-parsing = ["toml"]
 yaml-parsing = ["serde_yaml"]
 
 [dependencies]
 failure = "~0.1.1"
 
+ron = { version = "~0.1.4", optional = true }
+serde_yaml = { version = "~0.7.3", optional = true }
 toml = { version = "~0.4.5", optional = true }
-serde_yaml = { version = "0.7.3", optional = true }

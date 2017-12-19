@@ -44,16 +44,22 @@ TODO
 -   Allow specifying which traits to derive
 -   Decent error handling
 -   Allow naming the root struct
+-   Unit tests in library
 
 ### Eventually
 -   Nicer, more flexible API
 -   Features (functions?) to opt in/out of the generated const
 -   Allow generating the const only in release mode
--   Work with Ron and JSON
+-   Work with JSON
+-   Fix issues with RON parsing
 
 ### Like, mayyybe
 -   Possibly allow specifying imports, and custom types
 -   Try to avoid generating the same struct twice
 -   Use fixed-size arrays instead of slices for some (configurable) size threshold
--   If elements of arrays have different keys, take the union and make non-universal members Options?
+-   If elements of arrays have different keys, take the union and make non-universal/non-matching members Options?
+    -   compromise([1.0, 2, 3]) -> [1.0, 2.0, 3.0]
+    -   compromise(["Hello", null]) -> [Some("Hello"), None]
+    -   compromise([[floats], [ints]] -> [[floats], [floats]])
+    -   compromise(["Hello", 1]) -> None // fails
 

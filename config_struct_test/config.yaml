@@ -1,6 +1,6 @@
 ---
 name: Config name
-unit: null
+nothing: null
 number: 100
 is_config: true
 is_not_config: false
