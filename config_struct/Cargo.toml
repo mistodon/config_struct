@@ -2,6 +2,14 @@
 name = "config_struct"
 version = "0.1.0"
 authors = ["Pirh"]
+description = "Create structs from config files at build time."
+homepage = "https://github.com/Pirh/config_struct"
+repository = "https://github.com/Pirh/config_struct"
+readme = "README.md"
+keywords = ["build", "config", "parsing", "generator"]
+categories = ["config", "parsing"]
+license = "MIT"
+
 
 [features]
 default = []
