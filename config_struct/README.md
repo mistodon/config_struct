@@ -54,33 +54,3 @@ pub const CONFIG: Config = Config {
 };
 ```
 
-config_struct_test
-===
-
-A crate with a build script for testing `config_struct`. Run `cargo test` in that directory.
-
-
-TODO
-===
-
-### For sure
--   Features (functions?) to opt in/out of the generated const
--   Allow generating the const only in release mode
--   Documentation
-
-### Eventually
--   Nicer, more flexible API
--   Fix issues with RON parsing
--   Better error handling
--   Better test coverage
-
-### Like, mayyybe
--   Possibly allow specifying imports, and custom types
--   Try to avoid generating the same struct twice
--   Use fixed-size arrays instead of slices for some (configurable) size threshold
--   If elements of arrays have different keys, take the union and make non-universal/non-matching members Options?
-    -   compromise([1.0, 2, 3]) -> [1.0, 2.0, 3.0]
-    -   compromise(["Hello", null]) -> [Some("Hello"), None]
-    -   compromise([[floats], [ints]] -> [[floats], [floats]])
-    -   compromise(["Hello", 1]) -> None // fails
-
