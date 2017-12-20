@@ -28,7 +28,7 @@ extern crate config_struct;
 
 fn main() {
     let toml_config = config_struct::toml_parsing::parse_config_from_file("config.toml").unwrap();
-    config_struct::write_config_module(&toml_config, "src/config.rs").unwrap();
+    config_struct::write_config_module(&toml_config, "src/config.rs", &Default::default()).unwrap();
 }
 ```
 
@@ -58,10 +58,8 @@ TODO
 ---
 
 ### For sure
--   Allow naming the root struct
 -   Features (functions?) to opt in/out of the generated const
 -   Allow generating the const only in release mode
--   Allow specifying which traits to derive
 -   Documentation
 
 ### Eventually

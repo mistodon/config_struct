@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
 
 
-#[derive(Debug)]
+/// Represents a typed Rust value.
+#[derive(Debug, Clone)]
 pub enum RawValue
 {
     Unit,
@@ -26,7 +27,8 @@ pub enum RawValue
 }
 
 
-#[derive(Debug)]
+/// Represents a Rust struct.
+#[derive(Debug, Clone)]
 pub struct RawStructValue
 {
     pub struct_name: String,
