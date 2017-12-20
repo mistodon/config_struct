@@ -14,7 +14,7 @@
 //!
 //! # Examples
 //!
-//! ```rust
+//! ```rust,ignore
 //! // build.rs
 //! extern crate config_struct;
 //!
@@ -24,8 +24,8 @@
 //!     let toml_config = toml_parsing::parse_config_from_file("config.toml").unwrap();
 //!
 //!     config_struct::write_config_module(
-//!         &toml_config,
 //!         "src/config.rs",
+//!         &toml_config,
 //!         &Default::default()).unwrap();
 //! }
 //! ```
@@ -43,7 +43,7 @@
 //! ]
 //! ```
 //!
-//! ```rust
+//! ```rust,ignore
 //! // config.rs
 //! use std::borrow::Cow;
 //!
