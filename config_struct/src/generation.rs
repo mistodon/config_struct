@@ -1,7 +1,18 @@
+use validation::{ self, StructGenerationError };
 use value::{ RawValue, RawStructValue };
 
 
-pub fn generate_struct_declarations(output: &mut String, struct_value: &RawStructValue)
+pub fn generate_structs(struct_value: &RawStructValue) -> Result<String, StructGenerationError>
+{
+    validation::validate_struct_value(struct_value)?;
+
+    let mut buffer = String::new();
+    generate_struct_declarations(&mut buffer, struct_value);
+    Ok(buffer)
+}
+
+
+fn generate_struct_declarations(output: &mut String, struct_value: &RawStructValue)
 {
     let field_strings = struct_value.fields.iter()
         .map(|(name, value)| format!("    pub {}: {},", name, type_string(value)))
@@ -32,7 +43,8 @@ pub struct {} {{
 }
 
 
-fn type_string(value: &RawValue) -> String
+// TODO: Shouldn't really need to be public
+pub fn type_string(value: &RawValue) -> String
 {
     match *value
     {
@@ -63,14 +75,7 @@ fn type_string(value: &RawValue) -> String
         RawValue::Array(ref values) => {
             let element_type = match values.get(0)
             {
-                Some(element) => {
-                    let candidate = type_string(element);
-                    let all_same_type = values.iter()
-                        .map(type_string)
-                        .all(|s| s == candidate);
-                    assert!(all_same_type);
-                    candidate
-                },
+                Some(element) => type_string(element),
                 None => type_string(&RawValue::Unit)
             };
             format!("Cow<'static, [{}]>", element_type)

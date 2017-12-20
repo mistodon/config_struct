@@ -23,6 +23,7 @@ extern crate failure;
 
 mod generation;
 mod parsing;
+mod validation;
 mod value;
 
 
@@ -33,20 +34,21 @@ use failure::Error;
 pub use value::{ RawValue, RawStructValue };
 
 
-pub fn create_config_module(raw_config: &RawStructValue) -> String
+pub fn create_config_module(raw_config: &RawStructValue) -> Result<String, Error>
 {
     let mut code = String::new();
 
     code.push_str("use std::borrow::Cow;\n\n");
 
-    generation::generate_struct_declarations(&mut code, raw_config);
+    let structs = generation::generate_structs(raw_config)?;
+    code.push_str(&structs);
 
     code.push_str(
         &format!(
             "pub const CONFIG: Config = {};\n",
             generation::struct_value_string(raw_config, 0)));
 
-    code
+    Ok(code)
 }
 
 
@@ -57,7 +59,7 @@ where
     use std::fs::File;
     use std::io::Write;
 
-    let code = create_config_module(raw_config);
+    let code = create_config_module(raw_config)?;
 
     let file = &mut File::create(module_path)?;
     file.write_all(code.as_bytes())?;
