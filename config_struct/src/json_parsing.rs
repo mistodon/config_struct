@@ -1,3 +1,5 @@
+//! Parsing utilities for JSON config files. (Requires the `json-parsing` feature.)
+
 use std::path::Path;
 
 use failure::Error;
@@ -6,6 +8,10 @@ use serde_json::{ self, Value };
 use { RawValue, RawStructValue };
 
 
+/// Parse a RawStructValue from some JSON.
+///
+/// This can then be used to generate a config struct using `create_config_module` or
+/// `write_config_module`.
 pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, Error>
 {
     use parsing::{ self, ParsedConfig };
@@ -17,6 +23,11 @@ pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, E
     Ok(raw_config)
 }
 
+
+/// Parse a RawStructValue from a JSON file.
+///
+/// This can then be used to generate a config struct using `create_config_module` or
+/// `write_config_module`.
 pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<RawStructValue, Error>
 {
     use parsing;

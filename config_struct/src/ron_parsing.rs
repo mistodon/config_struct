@@ -1,3 +1,5 @@
+//! Parsing utilities for RON config files. (Requires the `ron-parsing` feature.)
+//!
 //! Not all of the RON syntax is currently supported:
 //!
 //! 1.  Maps are not supported, for example: `{ "a": 1 }`, because `ron` cannot parse them as
@@ -6,7 +8,6 @@
 //!     is not available at build time, and so cannot match the name in the config file.
 //! 3.  Tuples are not supported, for example: `(1, 2, 3)`. It was attempted and did not work for
 //!     some reason.
-
 
 use std::path::Path;
 
@@ -17,6 +18,10 @@ use ron::value::Value;
 use value::{ RawValue, RawStructValue };
 
 
+/// Parse a RawStructValue from some RON.
+///
+/// This can then be used to generate a config struct using `create_config_module` or
+/// `write_config_module`.
 pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, Error>
 {
     use parsing::{ self, ParsedConfig };
@@ -53,6 +58,11 @@ pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, E
     Ok(raw_config)
 }
 
+
+/// Parse a RawStructValue from a RON file.
+///
+/// This can then be used to generate a config struct using `create_config_module` or
+/// `write_config_module`.
 pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<RawStructValue, Error>
 {
     use parsing;
