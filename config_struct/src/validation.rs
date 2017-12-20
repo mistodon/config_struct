@@ -1,7 +1,9 @@
 use generation;
+use options::{ Options };
 use value::{ RawStructValue, RawValue };
 
 
+/// This type represents possible errors when generating a config struct.
 #[derive(Debug, Fail)]
 pub enum StructGenerationError
 {
@@ -12,7 +14,36 @@ pub enum StructGenerationError
     InvalidFieldName
     {
         key_name: String
+    },
+
+    #[fail(display = "config struct has an invalid name: \"{}\" - must be a valid Rust identifier", name)]
+    InvalidStructName
+    {
+        name: String
+    },
+
+    #[fail(display = "config const has an invalid name: \"{}\" - must be a valid Rust identifier", name)]
+    InvalidConstName
+    {
+        name: String
     }
+}
+
+
+pub fn validate_options(options: &Options) -> Result<(), StructGenerationError>
+{
+    if !valid_identifier(&options.struct_name)
+    {
+        return Err(StructGenerationError::InvalidStructName { name: options.struct_name.clone() });
+    }
+    if let Some(ref const_name) = options.const_name
+    {
+        if !valid_identifier(const_name)
+        {
+            return Err(StructGenerationError::InvalidConstName { name: const_name.clone() });
+        }
+    }
+    Ok(())
 }
 
 
@@ -29,12 +60,7 @@ pub fn validate_struct_value(struct_value: &RawStructValue) -> Result<(), Struct
 
 fn validate_field_name(field_name: &str) -> Result<(), StructGenerationError>
 {
-    use std::ascii::AsciiExt;
-
-    let good_start = field_name.starts_with(|c: char| c == '_' || (c.is_ascii() && c.is_alphabetic()));
-    let good_end = !field_name.contains(|c: char| !(c == '_' || c.is_digit(10) || (c.is_ascii() && c.is_alphabetic())));
-
-    if good_start && good_end && field_name != "_"
+    if valid_identifier(field_name)
     {
         Ok(())
     }
@@ -42,6 +68,17 @@ fn validate_field_name(field_name: &str) -> Result<(), StructGenerationError>
     {
         Err(StructGenerationError::InvalidFieldName { key_name: field_name.to_owned() })
     }
+}
+
+
+fn valid_identifier(name: &str) -> bool
+{
+    use std::ascii::AsciiExt;
+
+    let good_start = name.starts_with(|c: char| c == '_' || (c.is_ascii() && c.is_alphabetic()));
+    let good_end = !name.contains(|c: char| !(c == '_' || c.is_digit(10) || (c.is_ascii() && c.is_alphabetic())));
+
+    good_start && good_end && name != "_"
 }
 
 

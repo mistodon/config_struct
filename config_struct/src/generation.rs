@@ -1,40 +1,55 @@
-use validation::{ self, StructGenerationError };
+use options::{ Options };
 use value::{ RawValue, RawStructValue };
 
 
-pub fn generate_structs(struct_value: &RawStructValue) -> Result<String, StructGenerationError>
+pub fn generate_structs(
+    struct_value: &RawStructValue,
+    options: &Options) -> String
 {
-    validation::validate_struct_value(struct_value)?;
-
     let mut buffer = String::new();
-    generate_struct_declarations(&mut buffer, struct_value);
-    Ok(buffer)
+    generate_struct_declarations(&mut buffer, struct_value, options);
+    buffer
 }
 
 
-fn generate_struct_declarations(output: &mut String, struct_value: &RawStructValue)
+fn generate_struct_declarations(
+    output: &mut String,
+    struct_value: &RawStructValue,
+    options: &Options)
 {
     let field_strings = struct_value.fields.iter()
         .map(|(name, value)| format!("    pub {}: {},", name, type_string(value)))
         .collect::<Vec<String>>();
+
+    let derive_string = {
+        if options.derived_traits.is_empty()
+        {
+            "".to_owned()
+        }
+        else
+        {
+            format!("#[derive({})]\n", options.derived_traits.join(", "))
+        }
+    };
+
     output.push_str(&format!(
-"#[derive(Debug, Clone, Serialize, Deserialize)]
-#[allow(non_camel_case_types)]
+"{}#[allow(non_camel_case_types)]
 pub struct {} {{
 {}
 }}
 
-", struct_value.struct_name, field_strings.join("\n")));
+", derive_string, struct_value.struct_name, field_strings.join("\n")));
 
+    // TODO: is this ... accurate? Does this handle nested arrays/options???
     for value in struct_value.fields.values()
     {
         match *value
         {
-            RawValue::Struct(ref value) => generate_struct_declarations(output, value),
+            RawValue::Struct(ref value) => generate_struct_declarations(output, value, options),
             RawValue::Array(ref values) => {
                 if let Some(&RawValue::Struct(ref value)) = values.get(0)
                 {
-                    generate_struct_declarations(output, value);
+                    generate_struct_declarations(output, value, options);
                 }
             }
             _ => ()
