@@ -21,7 +21,7 @@ pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, E
 {
     use parsing::{ self, ParsedConfig };
 
-    let ron_object: ParsedConfig<Value>= {
+    let ron_object = {
         let ron_object: Value = de::from_str(config_source.as_ref())?;
 
         if let Value::Map(mapping) = ron_object
@@ -29,13 +29,22 @@ pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, E
             mapping.into_iter().map(
                 |(key, value)|
                 {
-                    let key = if let Value::String(key) = key { key } else { unimplemented!("Error please!") };
-                    (key, value)
-                }).collect()
+                    let key = {
+                        if let Value::String(key) = key
+                        {
+                            key
+                        }
+                        else
+                        {
+                            bail!("expected top-level keys in RON to be strings")
+                        }
+                    };
+                    Ok((key, value))
+                }).collect::<Result<ParsedConfig<Value>, Error>>()?
         }
         else
         {
-            unimplemented!("Error here please")
+            bail!("expected root object in RON to be a struct")
         }
     };
 
@@ -101,3 +110,23 @@ fn ron_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawVal
     }
 }
 
+
+#[cfg(test)]
+mod tests
+{
+    use super::*;
+
+    #[test]
+    fn test_non_string_keys()
+    {
+        let ron_code = r#"(100: "One hundred")"#;
+        assert!(parse_config(ron_code).is_err());
+    }
+
+    #[test]
+    fn test_non_struct_root_object()
+    {
+        let ron_code = r#"["key", "value"]"#;
+        assert!(parse_config(ron_code).is_err());
+    }
+}
