@@ -96,9 +96,11 @@ pub mod yaml_parsing;
 extern crate failure;
 
 
+#[cfg(any(feature = "json-parsing", feature = "ron-parsing", feature = "toml-parsing", feature = "yaml-parsing"))]
+mod parsing;
+
 mod generation;
 mod options;
-mod parsing;
 mod validation;
 mod value;
 
