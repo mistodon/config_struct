@@ -1,3 +1,6 @@
+#[cfg(feature = "json-parsing")]
+extern crate serde_json;
+
 #[cfg(feature = "ron-parsing")]
 extern crate ron;
 
@@ -8,6 +11,9 @@ extern crate toml;
 extern crate serde_yaml;
 
 
+#[cfg(feature = "json-parsing")]
+pub mod json_parsing;
+
 #[cfg(feature = "ron-parsing")]
 pub mod ron_parsing;
 
@@ -16,6 +22,7 @@ pub mod toml_parsing;
 
 #[cfg(feature = "yaml-parsing")]
 pub mod yaml_parsing;
+
 
 #[macro_use]
 extern crate failure;

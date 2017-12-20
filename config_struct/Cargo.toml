@@ -5,6 +5,7 @@ authors = ["Pirh"]
 
 [features]
 default = []
+json-parsing = ["serde_json"]
 ron-parsing = ["ron"]
 toml-parsing = ["toml"]
 yaml-parsing = ["serde_yaml"]
@@ -13,5 +14,6 @@ yaml-parsing = ["serde_yaml"]
 failure = "~0.1.1"
 
 ron = { version = "~0.1.4", optional = true }
+serde_json = { version = "~1.0.8", optional = true }
 serde_yaml = { version = "~0.7.3", optional = true }
 toml = { version = "~0.4.5", optional = true }
