@@ -17,7 +17,7 @@ pub mod toml_parsing;
 #[cfg(feature = "yaml-parsing")]
 pub mod yaml_parsing;
 
-
+#[macro_use]
 extern crate failure;
 
 
