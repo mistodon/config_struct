@@ -73,8 +73,6 @@ fn validate_field_name(field_name: &str) -> Result<(), StructGenerationError>
 
 fn valid_identifier(name: &str) -> bool
 {
-    use std::ascii::AsciiExt;
-
     let good_start = name.starts_with(|c: char| c == '_' || (c.is_ascii() && c.is_alphabetic()));
     let good_end = !name.contains(|c: char| !(c == '_' || c.is_digit(10) || (c.is_ascii() && c.is_alphabetic())));
 

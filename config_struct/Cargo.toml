@@ -1,6 +1,6 @@
 [package]
 name = "config_struct"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Pirh"]
 description = "Create structs from config files at build time."
 homepage = "https://github.com/Pirh/config_struct"

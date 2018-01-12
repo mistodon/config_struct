@@ -170,9 +170,34 @@ where
 
     let code = create_config_module(raw_config, options)?;
 
-    let file = &mut File::create(module_path)?;
-    file.write_all(code.as_bytes())?;
+    let should_write = {
+        if options.always_write
+        {
+            true
+        }
+        else
+        {
+            let existing_code = read_entire_file(module_path.as_ref()).unwrap_or(String::default());
+            code != existing_code
+        }
+    };
+
+    if should_write
+    {
+        let file = &mut File::create(module_path)?;
+        file.write_all(code.as_bytes())?;
+    }
 
     Ok(())
 }
 
+fn read_entire_file(path: &Path) -> std::io::Result<String>
+{
+    use std::fs::File;
+    use std::io::Read;
+
+    let mut file = File::open(path)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+    Ok(contents)
+}
