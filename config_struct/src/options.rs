@@ -15,7 +15,12 @@ pub struct Options
     /// A list of the traits to derive on the resulting struct.
     ///
     /// Defaults to `["Debug", "Clone", "Serialize", "Deserialize"]`.
-    pub derived_traits: Vec<String>
+    pub derived_traits: Vec<String>,
+
+    /// Whether to write the config module even if it is unchanged.
+    ///
+    /// Defaults to `false`.
+    pub always_write: bool,
 }
 
 impl Default for Options
@@ -30,8 +35,9 @@ impl Default for Options
                 "Debug".to_owned(),
                 "Clone".to_owned(),
                 "Serialize".to_owned(),
-                "Deserialize".to_owned()
-            ]
+                "Deserialize".to_owned(),
+            ],
+            always_write: false,
         }
     }
 }
