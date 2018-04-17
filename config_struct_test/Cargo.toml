@@ -1,7 +1,7 @@
 [package]
 name = "config_struct_test"
 version = "0.1.0"
-authors = ["Pirh"]
+authors = ["Claire Harris <claire.harris.000@gmail.com>"]
 
 [build-dependencies.config_struct]
 path = "../config_struct"

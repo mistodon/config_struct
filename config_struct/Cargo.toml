@@ -1,10 +1,10 @@
 [package]
 name = "config_struct"
 version = "0.1.1"
-authors = ["Pirh"]
+authors = ["Claire Harris <claire.harris.000@gmail.com>"]
 description = "Create structs from config files at build time."
-homepage = "https://github.com/Pirh/config_struct"
-repository = "https://github.com/Pirh/config_struct"
+homepage = "https://github.com/mistodon/config_struct"
+repository = "https://github.com/mistodon/config_struct"
 readme = "README.md"
 keywords = ["build", "config", "parsing", "generator"]
 categories = ["config", "parsing"]
