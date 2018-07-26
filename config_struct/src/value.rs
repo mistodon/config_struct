@@ -1,10 +1,8 @@
 use std::collections::BTreeMap;
 
-
 /// Represents a typed Rust value.
 #[derive(Debug, Clone)]
-pub enum RawValue
-{
+pub enum RawValue {
     Unit,
     Bool(bool),
     Char(char),
@@ -23,15 +21,12 @@ pub enum RawValue
     String(String),
     Option(Option<Box<RawValue>>),
     Array(Vec<RawValue>),
-    Struct(RawStructValue)
+    Struct(RawStructValue),
 }
-
 
 /// Represents a Rust struct.
 #[derive(Debug, Clone)]
-pub struct RawStructValue
-{
+pub struct RawStructValue {
     pub struct_name: String,
-    pub fields: BTreeMap<String, RawValue>
+    pub fields: BTreeMap<String, RawValue>,
 }
-

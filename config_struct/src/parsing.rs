@@ -2,31 +2,31 @@ use std::collections::BTreeMap;
 use std::io;
 use std::path::Path;
 
-use value::{ RawValue, RawStructValue };
-
+use value::{RawStructValue, RawValue};
 
 pub type ParsedConfig<T> = BTreeMap<String, T>;
 
-
-pub fn parsed_to_raw_config<T, F>(
-    parsed_config: ParsedConfig<T>,
-    convert_fn: F) -> RawStructValue
+pub fn parsed_to_raw_config<T, F>(parsed_config: ParsedConfig<T>, convert_fn: F) -> RawStructValue
 where
-    F: Fn(&str, &str, T) -> RawValue
+    F: Fn(&str, &str, T) -> RawValue,
 {
     let struct_name = "Config".to_owned();
 
-    let fields = parsed_config.into_iter().map(|(key, value)|
-    {
-        let value = convert_fn("_Config", &key, value);
-        (key, value)
-    }).collect();
+    let fields = parsed_config
+        .into_iter()
+        .map(|(key, value)| {
+            let value = convert_fn("_Config", &key, value);
+            (key, value)
+        })
+        .collect();
 
-    RawStructValue { struct_name, fields }
+    RawStructValue {
+        struct_name,
+        fields,
+    }
 }
 
-pub fn slurp_file(path: &Path) -> Result<String, io::Error>
-{
+pub fn slurp_file(path: &Path) -> Result<String, io::Error> {
     use std::fs::File;
     use std::io::Read;
 

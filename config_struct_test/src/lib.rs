@@ -7,34 +7,28 @@ extern crate serde_json;
 extern crate serde_yaml;
 extern crate toml;
 
-
 mod config;
 
-
-mod json_tests
-{
-    use std;
+mod json_tests {
     use serde_json;
+    use std;
 
-    use config::json::{ Config, CONFIG };
+    use config::json::{Config, CONFIG};
 
     #[test]
-    fn test_declarations()
-    {
+    fn test_declarations() {
         let _conf: &Config = &CONFIG;
     }
 
     #[test]
-    fn test_deserialization()
-    {
+    fn test_deserialization() {
         let json_source = include_str!("../config.json");
         let conf: Config = serde_json::from_str(json_source).unwrap();
         assert_eq!(conf.name, "Config name");
     }
 
     #[test]
-    fn test_simple_values()
-    {
+    fn test_simple_values() {
         assert_eq!(CONFIG.name, "Config name");
         assert_eq!(CONFIG.nothing, None);
         assert_eq!(CONFIG.number, 100);
@@ -46,8 +40,7 @@ mod json_tests
     }
 
     #[test]
-    fn test_composite_values()
-    {
+    fn test_composite_values() {
         assert_eq!(CONFIG.coord, [-5.0, 5.0].as_ref());
         assert_eq!(CONFIG.nested.name, "nested2");
         assert_eq!(CONFIG.nested.values.x, 0);
@@ -60,37 +53,31 @@ mod json_tests
     }
 
     #[test]
-    fn test_empty_array_is_array_of_unit()
-    {
+    fn test_empty_array_is_array_of_unit() {
         let empty: &[()] = &[];
         assert_eq!(CONFIG.empty, empty);
     }
 }
 
-
-mod ron_tests
-{
+mod ron_tests {
     use ron;
 
-    use config::ron::{ RonConfig, RONCONFIG };
+    use config::ron::{RonConfig, RONCONFIG};
 
     #[test]
-    fn test_declarations()
-    {
+    fn test_declarations() {
         let _conf: &RonConfig = &RONCONFIG;
     }
 
     #[test]
-    fn test_deserialization()
-    {
+    fn test_deserialization() {
         let ron_source = include_str!("../config.ron");
         let conf: RonConfig = ron::de::from_str(ron_source).unwrap();
         assert_eq!(conf.name, "Config name");
     }
 
     #[test]
-    fn test_simple_values()
-    {
+    fn test_simple_values() {
         assert_eq!(RONCONFIG.name, "Config name");
         assert_eq!(RONCONFIG.unit, ());
         assert_eq!(RONCONFIG.angelface, 'A');
@@ -102,15 +89,13 @@ mod ron_tests
     }
 
     #[test]
-    fn test_empty_array()
-    {
+    fn test_empty_array() {
         let empty: &[()] = &[];
         assert_eq!(RONCONFIG.empty, empty);
     }
 
     #[test]
-    fn test_compound_values()
-    {
+    fn test_compound_values() {
         assert_eq!(RONCONFIG.countdown[0], 3);
         assert_eq!(RONCONFIG.countdown[1], 2);
         assert_eq!(RONCONFIG.countdown[2], 1);
@@ -123,30 +108,25 @@ mod ron_tests
     }
 }
 
-
-mod toml_tests
-{
+mod toml_tests {
     use toml;
 
-    use config::toml::{ TomlConfig, TOMLCONFIG };
+    use config::toml::{TomlConfig, TOMLCONFIG};
 
     #[test]
-    fn test_declarations()
-    {
+    fn test_declarations() {
         let _conf: &TomlConfig = &TOMLCONFIG;
     }
 
     #[test]
-    fn test_deserialization()
-    {
+    fn test_deserialization() {
         let toml_source = include_str!("../config.toml");
         let conf: TomlConfig = toml::from_str(toml_source).unwrap();
         assert_eq!(conf.name, "Config name");
     }
 
     #[test]
-    fn test_simple_values()
-    {
+    fn test_simple_values() {
         assert_eq!(TOMLCONFIG.name, "Config name");
         assert_eq!(TOMLCONFIG.number, 100);
         assert_eq!(TOMLCONFIG.is_config, true);
@@ -157,68 +137,67 @@ mod toml_tests
     }
 
     #[test]
-    fn test_simple_array_values()
-    {
+    fn test_simple_array_values() {
         assert_eq!(TOMLCONFIG.coord, [-5.0, 5.0].as_ref());
         assert_eq!(TOMLCONFIG.color, [0, 64, 128, 255].as_ref());
         assert_eq!(TOMLCONFIG.words, ["one", "two", "three"].as_ref());
-        assert_eq!(TOMLCONFIG.points, [[1, 2].as_ref(), [3, 4].as_ref(), [5, 6].as_ref()].as_ref());
+        assert_eq!(
+            TOMLCONFIG.points,
+            [[1, 2].as_ref(), [3, 4].as_ref(), [5, 6].as_ref()].as_ref()
+        );
     }
 
     #[test]
-    fn test_table_values()
-    {
+    fn test_table_values() {
         assert_eq!(TOMLCONFIG.table.name, "A table");
         assert_eq!(TOMLCONFIG.table.magnitude, 1000000000);
     }
 
     #[test]
-    fn test_nested_tables()
-    {
-        assert_eq!(TOMLCONFIG.table.table_again.name, "OK this is just getting ridiculous");
-        assert_eq!(TOMLCONFIG.table.table_again.description, "getting ridiculous");
+    fn test_nested_tables() {
+        assert_eq!(
+            TOMLCONFIG.table.table_again.name,
+            "OK this is just getting ridiculous"
+        );
+        assert_eq!(
+            TOMLCONFIG.table.table_again.description,
+            "getting ridiculous"
+        );
     }
 
     #[test]
-    fn test_array_of_tables()
-    {
+    fn test_array_of_tables() {
         assert_eq!(TOMLCONFIG.arrayble[0].description, "just unbelievable");
         assert_eq!(TOMLCONFIG.arrayble[1].description, "what is this syntax");
     }
 
     #[test]
-    fn test_empty_array_is_array_of_unit()
-    {
+    fn test_empty_array_is_array_of_unit() {
         let empty: &[()] = &[];
         assert_eq!(TOMLCONFIG.empty, empty);
     }
 }
 
-
-mod yaml_tests
-{
-    use std;
+mod yaml_tests {
     use serde_yaml;
+    use std;
 
-    use config::yaml::{ YamlConfig, YAML_CONFIG };
+    use config::yaml::{YamlConfig, YAML_CONFIG};
 
     #[test]
-    fn test_declarations()
-    {
+    fn test_declarations() {
         let _conf: &YamlConfig = &YAML_CONFIG;
     }
 
     #[test]
-    fn test_deserialization()
-    {
+    fn test_deserialization() {
         let yaml_source = include_str!("../config.yaml");
         let conf: YamlConfig = serde_yaml::from_str(yaml_source).unwrap();
         assert_eq!(conf.name, "Config name");
     }
 
     #[test]
-    fn test_simple_values()
-    {
+    fn test_simple_values() {
         assert_eq!(YAML_CONFIG.name, "Config name");
         assert_eq!(YAML_CONFIG.nothing, None);
         assert_eq!(YAML_CONFIG.number, 100);
@@ -230,8 +209,7 @@ mod yaml_tests
     }
 
     #[test]
-    fn test_composite_values()
-    {
+    fn test_composite_values() {
         assert_eq!(YAML_CONFIG.coord, [-5.0, 5.0].as_ref());
         assert_eq!(YAML_CONFIG.nested.name, "nested2");
         assert_eq!(YAML_CONFIG.nested.values.x, 0);
@@ -244,10 +222,8 @@ mod yaml_tests
     }
 
     #[test]
-    fn test_empty_array_is_array_of_unit()
-    {
+    fn test_empty_array_is_array_of_unit() {
         let empty: &[()] = &[];
         assert_eq!(YAML_CONFIG.empty, empty);
     }
 }
-
