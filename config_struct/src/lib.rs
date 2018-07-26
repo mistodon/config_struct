@@ -113,7 +113,7 @@ use failure::Error;
 
 pub use options::Options;
 pub use validation::StructGenerationError;
-pub use value::{RawStructValue, RawValue};
+pub use value::{RawStructValue, RawValue, ParsedConfig, MarkupLanguage};
 
 /// Generate Rust code for a RawStructValue.
 ///
@@ -122,25 +122,25 @@ pub use value::{RawStructValue, RawValue};
 /// The easiest way to get a RawStructValue is to use the `parse_config` or
 /// `parse_config_from_file` function from one of the parsing modules.
 pub fn create_config_module(
-    raw_config: &RawStructValue,
+    raw_config: &ParsedConfig,
     options: &Options,
 ) -> Result<String, StructGenerationError> {
     validation::validate_options(options)?;
 
-    let raw_config = {
+    let config = {
         // TODO: Ugh, this is really ugly
-        let mut config = raw_config.clone();
+        let mut config = raw_config.struct_value.clone();
         config.struct_name = options.struct_name.clone();
         config
     };
 
-    validation::validate_struct_value(&raw_config)?;
+    validation::validate_struct_value(&config)?;
 
     let mut code = String::new();
 
     code.push_str("use std::borrow::Cow;\n\n");
 
-    let structs = generation::generate_structs(&raw_config, options);
+    let structs = generation::generate_structs(&config, options);
     code.push_str(&structs);
 
     let const_name = options
@@ -152,7 +152,7 @@ pub fn create_config_module(
         "pub const {}: {} = {};\n",
         const_name,
         options.struct_name,
-        generation::struct_value_string(&raw_config, 0)
+        generation::struct_value_string(&config, 0)
     ));
 
     Ok(code)
@@ -163,7 +163,7 @@ pub fn create_config_module(
 /// This simply writes the result of `create_config_module` to a file.
 pub fn write_config_module<P>(
     module_path: P,
-    raw_config: &RawStructValue,
+    raw_config: &ParsedConfig,
     options: &Options,
 ) -> Result<(), Error>
 where

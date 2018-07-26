@@ -15,14 +15,14 @@ use failure::Error;
 use ron::de;
 use ron::value::Value;
 
-use value::{RawStructValue, RawValue};
+use value::{RawStructValue, RawValue, ParsedConfig, MarkupLanguage};
 
-/// Parse a RawStructValue from some RON.
+/// Parse a ParsedConfig from some RON.
 ///
 /// This can then be used to generate a config struct using `create_config_module` or
 /// `write_config_module`.
-pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, Error> {
-    use parsing::{self, ParsedConfig};
+pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<ParsedConfig, Error> {
+    use parsing::{self, ParsedFields};
 
     let ron_object = {
         let ron_object: Value = de::from_str(config_source.as_ref())?;
@@ -40,7 +40,7 @@ pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, E
                     };
                     Ok((key, value))
                 })
-                .collect::<Result<ParsedConfig<Value>, Error>>()?
+                .collect::<Result<ParsedFields<Value>, Error>>()?
         } else {
             bail!("expected root object in RON to be a struct")
         }
@@ -48,14 +48,14 @@ pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, E
 
     let raw_config = parsing::parsed_to_raw_config(ron_object, ron_to_raw_value);
 
-    Ok(raw_config)
+    Ok(ParsedConfig { filename: None, struct_value: raw_config, markup: MarkupLanguage::Ron })
 }
 
-/// Parse a RawStructValue from a RON file.
+/// Parse a ParsedConfig from a RON file.
 ///
 /// This can then be used to generate a config struct using `create_config_module` or
 /// `write_config_module`.
-pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<RawStructValue, Error> {
+pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<ParsedConfig, Error> {
     use parsing;
 
     let config_source = parsing::slurp_file(config_path.as_ref())?;
