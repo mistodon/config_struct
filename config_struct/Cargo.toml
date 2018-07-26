@@ -16,7 +16,8 @@ all-features = true
 
 
 [features]
-default = []
+default = ["load-helper"]
+load-helper = []
 json-parsing = ["serde_json"]
 ron-parsing = ["ron"]
 toml-parsing = ["toml"]

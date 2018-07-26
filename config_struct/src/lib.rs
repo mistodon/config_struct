@@ -65,7 +65,6 @@
 //! Strings and arrays are represented by `Cow` types, which allows the entire Config struct to
 //! be either heap allocated at runtime, or a compile time constant, as shown above.
 
-
 #[cfg(feature = "json-parsing")]
 extern crate serde_json;
 
@@ -77,7 +76,6 @@ extern crate toml;
 
 #[cfg(feature = "yaml-parsing")]
 extern crate serde_yaml;
-
 
 #[cfg(feature = "json-parsing")]
 pub mod json_parsing;
@@ -91,12 +89,17 @@ pub mod toml_parsing;
 #[cfg(feature = "yaml-parsing")]
 pub mod yaml_parsing;
 
-
 #[macro_use]
 extern crate failure;
 
-
-#[cfg(any(feature = "json-parsing", feature = "ron-parsing", feature = "toml-parsing", feature = "yaml-parsing"))]
+#[cfg(
+    any(
+        feature = "json-parsing",
+        feature = "ron-parsing",
+        feature = "toml-parsing",
+        feature = "yaml-parsing"
+    )
+)]
 mod parsing;
 
 mod generation;
@@ -104,15 +107,13 @@ mod options;
 mod validation;
 mod value;
 
-
 use std::path::Path;
 
 use failure::Error;
 
-pub use options::{ Options };
+pub use options::Options;
 pub use validation::StructGenerationError;
-pub use value::{ RawValue, RawStructValue };
-
+pub use value::{RawStructValue, RawValue};
 
 /// Generate Rust code for a RawStructValue.
 ///
@@ -122,8 +123,8 @@ pub use value::{ RawValue, RawStructValue };
 /// `parse_config_from_file` function from one of the parsing modules.
 pub fn create_config_module(
     raw_config: &RawStructValue,
-    options: &Options) -> Result<String, StructGenerationError>
-{
+    options: &Options,
+) -> Result<String, StructGenerationError> {
     validation::validate_options(options)?;
 
     let raw_config = {
@@ -142,18 +143,20 @@ pub fn create_config_module(
     let structs = generation::generate_structs(&raw_config, options);
     code.push_str(&structs);
 
-    let const_name = options.const_name.clone().unwrap_or(options.struct_name.to_uppercase());
+    let const_name = options
+        .const_name
+        .clone()
+        .unwrap_or(options.struct_name.to_uppercase());
 
-    code.push_str(
-        &format!(
-            "pub const {}: {} = {};\n",
-            const_name,
-            options.struct_name,
-            generation::struct_value_string(&raw_config, 0)));
+    code.push_str(&format!(
+        "pub const {}: {} = {};\n",
+        const_name,
+        options.struct_name,
+        generation::struct_value_string(&raw_config, 0)
+    ));
 
     Ok(code)
 }
-
 
 /// Generate Rust code for a RawStructValue and write it to a file.
 ///
@@ -161,9 +164,10 @@ pub fn create_config_module(
 pub fn write_config_module<P>(
     module_path: P,
     raw_config: &RawStructValue,
-    options: &Options) -> Result<(), Error>
+    options: &Options,
+) -> Result<(), Error>
 where
-    P: AsRef<Path>
+    P: AsRef<Path>,
 {
     use std::fs::File;
     use std::io::Write;
@@ -171,19 +175,15 @@ where
     let code = create_config_module(raw_config, options)?;
 
     let should_write = {
-        if options.always_write
-        {
+        if options.always_write {
             true
-        }
-        else
-        {
+        } else {
             let existing_code = read_entire_file(module_path.as_ref()).unwrap_or(String::default());
             code != existing_code
         }
     };
 
-    if should_write
-    {
+    if should_write {
         let file = &mut File::create(module_path)?;
         file.write_all(code.as_bytes())?;
     }
@@ -191,8 +191,7 @@ where
     Ok(())
 }
 
-fn read_entire_file(path: &Path) -> std::io::Result<String>
-{
+fn read_entire_file(path: &Path) -> std::io::Result<String> {
     use std::fs::File;
     use std::io::Read;
 

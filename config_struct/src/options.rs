@@ -1,7 +1,6 @@
 /// The set of options for generating a config struct.
 #[derive(Debug, Clone)]
-pub struct Options
-{
+pub struct Options {
     /// The name of the resulting struct.
     ///
     /// Defaults to `"Config"`.
@@ -23,12 +22,9 @@ pub struct Options
     pub always_write: bool,
 }
 
-impl Default for Options
-{
-    fn default() -> Self
-    {
-        Options
-        {
+impl Default for Options {
+    fn default() -> Self {
+        Options {
             struct_name: "Config".to_owned(),
             const_name: None,
             derived_traits: vec![
@@ -41,4 +37,3 @@ impl Default for Options
         }
     }
 }
-
