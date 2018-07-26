@@ -5,27 +5,27 @@ use std::path::Path;
 use failure::Error;
 use serde_yaml::{self, Value};
 
-use {RawStructValue, RawValue};
+use {RawStructValue, RawValue, ParsedConfig, MarkupLanguage};
 
-/// Parse a RawStructValue from some YAML.
+/// Parse a ParsedConfig from some YAML.
 ///
 /// This can then be used to generate a config struct using `create_config_module` or
 /// `write_config_module`.
-pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, Error> {
-    use parsing::{self, ParsedConfig};
+pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<ParsedConfig, Error> {
+    use parsing::{self, ParsedFields};
 
-    let yaml_object: ParsedConfig<Value> = serde_yaml::from_str(config_source.as_ref())?;
+    let yaml_object: ParsedFields<Value> = serde_yaml::from_str(config_source.as_ref())?;
 
     let raw_config = parsing::parsed_to_raw_config(yaml_object, yaml_to_raw_value);
 
-    Ok(raw_config)
+    Ok(ParsedConfig { filename: None, struct_value: raw_config, markup: MarkupLanguage::Yaml })
 }
 
-/// Parse a RawStructValue from a YAML file.
+/// Parse a ParsedConfig from a YAML file.
 ///
 /// This can then be used to generate a config struct using `create_config_module` or
 /// `write_config_module`.
-pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<RawStructValue, Error> {
+pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<ParsedConfig, Error> {
     use parsing;
 
     let config_source = parsing::slurp_file(config_path.as_ref())?;

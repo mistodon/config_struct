@@ -30,3 +30,20 @@ pub struct RawStructValue {
     pub struct_name: String,
     pub fields: BTreeMap<String, RawValue>,
 }
+
+/// Represents a parsed config struct.
+#[derive(Debug, Clone)]
+pub struct ParsedConfig {
+    pub filename: Option<String>,
+    pub struct_value: RawStructValue,
+    pub markup: MarkupLanguage,
+}
+
+/// Represents one of the supported markup languages.
+#[derive(Debug, Clone, Copy)]
+pub enum MarkupLanguage {
+    Json,
+    Ron,
+    Toml,
+    Yaml,
+}

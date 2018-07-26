@@ -5,27 +5,27 @@ use std::path::Path;
 use failure::Error;
 use toml::{self, Value};
 
-use {RawStructValue, RawValue};
+use {RawStructValue, RawValue, ParsedConfig, MarkupLanguage};
 
-/// Parse a RawStructValue from some TOML.
+/// Parse a ParsedConfig from some TOML.
 ///
 /// This can then be used to generate a config struct using `create_config_module` or
 /// `write_config_module`.
-pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<RawStructValue, Error> {
-    use parsing::{self, ParsedConfig};
+pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<ParsedConfig, Error> {
+    use parsing::{self, ParsedFields};
 
-    let toml_object: ParsedConfig<Value> = toml::from_str(config_source.as_ref())?;
+    let toml_object: ParsedFields<Value> = toml::from_str(config_source.as_ref())?;
 
     let raw_config = parsing::parsed_to_raw_config(toml_object, toml_to_raw_value);
 
-    Ok(raw_config)
+    Ok(ParsedConfig { filename: None, struct_value: raw_config, markup: MarkupLanguage::Toml })
 }
 
-/// Parse a RawStructValue from a TOML file.
+/// Parse a ParsedConfig from a TOML file.
 ///
 /// This can then be used to generate a config struct using `create_config_module` or
 /// `write_config_module`.
-pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<RawStructValue, Error> {
+pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<ParsedConfig, Error> {
     use parsing;
 
     let config_source = parsing::slurp_file(config_path.as_ref())?;

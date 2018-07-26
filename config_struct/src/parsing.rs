@@ -4,9 +4,9 @@ use std::path::Path;
 
 use value::{RawStructValue, RawValue};
 
-pub type ParsedConfig<T> = BTreeMap<String, T>;
+pub type ParsedFields<T> = BTreeMap<String, T>;
 
-pub fn parsed_to_raw_config<T, F>(parsed_config: ParsedConfig<T>, convert_fn: F) -> RawStructValue
+pub fn parsed_to_raw_config<T, F>(parsed_config: ParsedFields<T>, convert_fn: F) -> RawStructValue
 where
     F: Fn(&str, &str, T) -> RawValue,
 {
