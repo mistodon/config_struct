@@ -146,7 +146,7 @@ pub fn create_config_module(
     let const_name = options
         .const_name
         .clone()
-        .unwrap_or(options.struct_name.to_uppercase());
+        .unwrap_or_else(|| options.struct_name.to_uppercase());
 
     code.push_str(&format!(
         "pub const {}: {} = {};\n",
@@ -178,7 +178,8 @@ where
         if options.always_write {
             true
         } else {
-            let existing_code = read_entire_file(module_path.as_ref()).unwrap_or(String::default());
+            let existing_code = read_entire_file(module_path.as_ref())
+                .unwrap_or_default();
             code != existing_code
         }
     };
