@@ -21,6 +21,7 @@ fn yaml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> Gener
         Value::Null => GenericValue::Option(None),
         Value::Bool(value) => GenericValue::Bool(value),
         Value::Number(value) => match (value.as_i64(), value.as_u64(), value.as_f64()) {
+            // TODO: Unit tests for this.
             (Some(x), _, _) => GenericValue::I64(x),
             (None, Some(x), _) => GenericValue::U64(x),
             (None, None, Some(x)) => GenericValue::F64(x),
