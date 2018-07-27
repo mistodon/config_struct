@@ -1,6 +1,8 @@
 config_struct
 ===
 
+**NOTE:** Current state of master is a bit messy. v0.2.0 is coming soon however.
+
 This is a library for converting config files into matching source files at build time.
 
 Usage
