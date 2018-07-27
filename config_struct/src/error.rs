@@ -11,13 +11,18 @@ pub enum Error {
 
 #[derive(Debug, Fail)]
 pub enum GenerationError {
-    #[fail(display = "Unknown input format: `{}`. (Maybe you need to enable the right feature?)", _0)]
+    #[fail(
+        display = "Unknown input format: `{}`. (Maybe you need to enable the right feature?)", _0
+    )]
     UnknownInputFormat(String),
 
     #[fail(display = "Invalid field name: `{}`.", _0)]
     InvalidFieldName(String),
 
-    #[fail(display = "Array under key `{}` has elements of different types. Arrays must be homogenous.", _0)]
+    #[fail(
+        display = "Array under key `{}` has elements of different types. Arrays must be homogenous.",
+        _0
+    )]
     HeterogenousArray(String),
 
     #[fail(display = "Deserialization failed: {}", _0)]
@@ -36,15 +41,20 @@ pub enum OptionsError {
     InvalidConstName(String),
 }
 
-
 impl From<GenerationError> for Error {
-    fn from(error: GenerationError) -> Self { Error::Generation(error) }
+    fn from(error: GenerationError) -> Self {
+        Error::Generation(error)
+    }
 }
 
 impl From<IOError> for Error {
-    fn from(error: IOError) -> Self { Error::IO(error) }
+    fn from(error: IOError) -> Self {
+        Error::IO(error)
+    }
 }
 
 impl From<OptionsError> for GenerationError {
-    fn from(error: OptionsError) -> Self { GenerationError::Options(error) }
+    fn from(error: OptionsError) -> Self {
+        GenerationError::Options(error)
+    }
 }

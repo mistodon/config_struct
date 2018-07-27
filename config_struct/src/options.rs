@@ -19,7 +19,9 @@ impl Options {
     }
 
     pub fn real_const_name(&self) -> String {
-        self.const_name.clone().unwrap_or_else(|| self.struct_name.to_uppercase())
+        self.const_name
+            .clone()
+            .unwrap_or_else(|| self.struct_name.to_uppercase())
     }
 }
 

@@ -46,10 +46,7 @@ fn validate_array_element_types(key: &str, values: &[GenericValue]) -> Result<()
     if let Some(ref value) = values.get(0) {
         // TODO: A more efficient way to compare types would be nice
         let candidate = type_string(value);
-        let all_same_type = values
-            .iter()
-            .map(type_string)
-            .all(|s| s == candidate);
+        let all_same_type = values.iter().map(type_string).all(|s| s == candidate);
 
         if !all_same_type {
             return Err(GenerationError::HeterogenousArray(key.into()));

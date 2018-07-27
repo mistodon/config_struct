@@ -18,7 +18,6 @@ impl Format {
     pub fn from_filename(filename: &Path) -> Result<Self, GenerationError> {
         match filename.extension() {
             Some(ext) => match ext.to_string_lossy().as_ref() {
-
                 #[cfg(feature = "json-parsing")]
                 "json" => Ok(Format::Json),
 
@@ -32,7 +31,7 @@ impl Format {
                 "yaml" | "yml" => Ok(Format::Yaml),
 
                 other => Err(GenerationError::UnknownInputFormat(other.into())),
-            }
+            },
             None => Err(GenerationError::UnknownInputFormat("<none>".into())),
         }
     }

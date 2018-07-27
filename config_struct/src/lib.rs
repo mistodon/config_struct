@@ -13,7 +13,6 @@ extern crate serde_yaml;
 #[macro_use]
 extern crate failure;
 
-
 #[cfg(feature = "json-parsing")]
 mod json_parsing;
 
@@ -35,17 +34,13 @@ mod validation;
 mod value;
 
 use std::path::Path;
-use value::{ParsedConfig, GenericStruct};
+use value::{GenericStruct, ParsedConfig};
 
 pub use error::{Error, GenerationError, OptionsError};
 pub use format::Format;
 pub use options::Options;
 
-
-pub fn generate_config<P: AsRef<Path>>(
-    filepath: P,
-    options: &Options,
-) -> Result<String, Error> {
+pub fn generate_config<P: AsRef<Path>>(filepath: P, options: &Options) -> Result<String, Error> {
     let format = Format::from_filename(filepath.as_ref())?;
 
     generate_config_with_format(format, filepath, options)
@@ -89,7 +84,7 @@ pub fn generate_config_from_source<S: AsRef<str>>(
         ParsedConfig {
             filename: None, // TODO: Fix this
             format,
-            root_struct: root_struct,
+            root_struct,
         }
     };
 

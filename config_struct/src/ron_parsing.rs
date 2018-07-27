@@ -15,10 +15,7 @@ use options::Options;
 use parsing;
 use value::{GenericStruct, GenericValue};
 
-pub fn parse_ron(
-    ron: &str,
-    options: &Options,
-) -> Result<GenericStruct, GenerationError> {
+pub fn parse_ron(ron: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let ron_struct = {
@@ -46,8 +43,7 @@ pub fn parse_ron(
         }
     };
 
-    let generic_struct = parsing::parsed_to_generic_struct(
-        ron_struct, ron_to_raw_value);
+    let generic_struct = parsing::parsed_to_generic_struct(ron_struct, ron_to_raw_value);
 
     Ok(generic_struct)
 }
