@@ -1,8 +1,25 @@
 use std::collections::BTreeMap;
+use format::Format;
+
+/// Represents a parsed config struct.
+#[derive(Debug, Clone)]
+pub struct ParsedConfig {
+    pub filename: Option<String>,
+    pub format: Format,
+    pub root_struct: GenericStruct,
+}
+
+/// Represents a Rust struct.
+#[derive(Debug, Clone)]
+pub struct GenericStruct {
+    pub struct_name: String,
+    pub fields: BTreeMap<String, GenericValue>,
+}
 
 /// Represents a typed Rust value.
 #[derive(Debug, Clone)]
-pub enum RawValue {
+#[allow(dead_code)]
+pub enum GenericValue {
     Unit,
     Bool(bool),
     Char(char),
@@ -19,31 +36,7 @@ pub enum RawValue {
     F32(f32),
     F64(f64),
     String(String),
-    Option(Option<Box<RawValue>>),
-    Array(Vec<RawValue>),
-    Struct(RawStructValue),
-}
-
-/// Represents a Rust struct.
-#[derive(Debug, Clone)]
-pub struct RawStructValue {
-    pub struct_name: String,
-    pub fields: BTreeMap<String, RawValue>,
-}
-
-/// Represents a parsed config struct.
-#[derive(Debug, Clone)]
-pub struct ParsedConfig {
-    pub filename: Option<String>,
-    pub struct_value: RawStructValue,
-    pub markup: MarkupLanguage,
-}
-
-/// Represents one of the supported markup languages.
-#[derive(Debug, Clone, Copy)]
-pub enum MarkupLanguage {
-    Json,
-    Ron,
-    Toml,
-    Yaml,
+    Option(Option<Box<GenericValue>>),
+    Array(Vec<GenericValue>),
+    Struct(GenericStruct),
 }

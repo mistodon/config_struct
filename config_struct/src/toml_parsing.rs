@@ -1,46 +1,37 @@
-//! Parsing utilities for TOML config files. (Requires the `toml-parsing` feature.)
-
-use std::path::Path;
-
-use failure::Error;
 use toml::{self, Value};
 
-use {RawStructValue, RawValue, ParsedConfig, MarkupLanguage};
+use error::GenerationError;
+use options::Options;
+use parsing;
+use value::{GenericStruct, GenericValue};
 
-/// Parse a ParsedConfig from some TOML.
-///
-/// This can then be used to generate a config struct using `create_config_module` or
-/// `write_config_module`.
-pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<ParsedConfig, Error> {
-    use parsing::{self, ParsedFields};
+pub fn parse_toml(
+    toml: &str,
+    options: &Options,
+) -> Result<GenericStruct, GenerationError> {
+    use parsing::ParsedFields;
 
-    let toml_object: ParsedFields<Value> = toml::from_str(config_source.as_ref())?;
+    let toml_struct: ParsedFields<Value> = toml::from_str(toml)
+        .map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
 
-    let raw_config = parsing::parsed_to_raw_config(toml_object, toml_to_raw_value);
+    let generic_struct = parsing::parsed_to_generic_struct(
+        toml_struct, toml_to_raw_value);
 
-    Ok(ParsedConfig { filename: None, struct_value: raw_config, markup: MarkupLanguage::Toml })
+    Ok(generic_struct)
 }
 
-/// Parse a ParsedConfig from a TOML file.
-///
-/// This can then be used to generate a config struct using `create_config_module` or
-/// `write_config_module`.
-pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<ParsedConfig, Error> {
-    use parsing;
-
-    let config_source = parsing::slurp_file(config_path.as_ref())?;
-
-    parse_config(&config_source)
-}
-
-fn toml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawValue {
+fn toml_to_raw_value(
+    super_struct: &str,
+    super_key: &str,
+    value: Value,
+) -> GenericValue {
     match value {
-        Value::Boolean(value) => RawValue::Bool(value),
-        Value::Integer(value) => RawValue::I64(value),
-        Value::Float(value) => RawValue::F64(value),
-        Value::String(value) => RawValue::String(value),
-        Value::Datetime(value) => RawValue::String(value.to_string()),
-        Value::Array(values) => RawValue::Array(
+        Value::Boolean(value) => GenericValue::Bool(value),
+        Value::Integer(value) => GenericValue::I64(value),
+        Value::Float(value) => GenericValue::F64(value),
+        Value::String(value) => GenericValue::String(value),
+        Value::Datetime(value) => GenericValue::String(value.to_string()),
+        Value::Array(values) => GenericValue::Array(
             values
                 .into_iter()
                 .map(|value| toml_to_raw_value(super_struct, super_key, value))
@@ -55,7 +46,7 @@ fn toml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawVa
                     (key, value)
                 })
                 .collect();
-            RawValue::Struct(RawStructValue {
+            GenericValue::Struct(GenericStruct {
                 struct_name: sub_struct_name,
                 fields: values,
             })

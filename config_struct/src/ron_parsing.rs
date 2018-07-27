@@ -8,24 +8,22 @@
 //!     is not available at build time, and so cannot match the name in the config file.
 //! 3.  Tuples are not supported, for example: `(1, 2, 3)`. It was attempted and did not work for
 //!     some reason.
+use ron::{self, value::Value};
 
-use std::path::Path;
+use error::GenerationError;
+use options::Options;
+use parsing;
+use value::{GenericStruct, GenericValue};
 
-use failure::Error;
-use ron::de;
-use ron::value::Value;
+pub fn parse_ron(
+    ron: &str,
+    options: &Options,
+) -> Result<GenericStruct, GenerationError> {
+    use parsing::ParsedFields;
 
-use value::{RawStructValue, RawValue, ParsedConfig, MarkupLanguage};
-
-/// Parse a ParsedConfig from some RON.
-///
-/// This can then be used to generate a config struct using `create_config_module` or
-/// `write_config_module`.
-pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<ParsedConfig, Error> {
-    use parsing::{self, ParsedFields};
-
-    let ron_object = {
-        let ron_object: Value = de::from_str(config_source.as_ref())?;
+    let ron_struct = {
+        let ron_object: Value = ron::de::from_str(ron)
+            .map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
 
         if let Value::Map(mapping) = ron_object {
             mapping
@@ -35,53 +33,44 @@ pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<ParsedConfig, Err
                         if let Value::String(key) = key {
                             key
                         } else {
-                            bail!("expected top-level keys in RON to be strings")
+                            let m = "Top-level keys in RON map must be strings.".to_owned();
+                            return Err(GenerationError::DeserializationFailed(m));
                         }
                     };
                     Ok((key, value))
                 })
-                .collect::<Result<ParsedFields<Value>, Error>>()?
+                .collect::<Result<ParsedFields<Value>, GenerationError>>()?
         } else {
-            bail!("expected root object in RON to be a struct")
+            let m = "Root RON object must be a struct or map.".to_owned();
+            return Err(GenerationError::DeserializationFailed(m));
         }
     };
 
-    let raw_config = parsing::parsed_to_raw_config(ron_object, ron_to_raw_value);
+    let generic_struct = parsing::parsed_to_generic_struct(
+        ron_struct, ron_to_raw_value);
 
-    Ok(ParsedConfig { filename: None, struct_value: raw_config, markup: MarkupLanguage::Ron })
+    Ok(generic_struct)
 }
 
-/// Parse a ParsedConfig from a RON file.
-///
-/// This can then be used to generate a config struct using `create_config_module` or
-/// `write_config_module`.
-pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<ParsedConfig, Error> {
-    use parsing;
-
-    let config_source = parsing::slurp_file(config_path.as_ref())?;
-
-    parse_config(&config_source)
-}
-
-fn ron_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawValue {
+fn ron_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> GenericValue {
     match value {
-        Value::Unit => RawValue::Unit,
-        Value::Bool(value) => RawValue::Bool(value),
-        Value::Char(value) => RawValue::Char(value),
+        Value::Unit => GenericValue::Unit,
+        Value::Bool(value) => GenericValue::Bool(value),
+        Value::Char(value) => GenericValue::Char(value),
         Value::Number(value) => {
             let float = value.get();
 
             if float.trunc() == float {
-                RawValue::I64(float as i64)
+                GenericValue::I64(float as i64)
             } else {
-                RawValue::F64(float)
+                GenericValue::F64(float)
             }
         }
-        Value::String(value) => RawValue::String(value),
-        Value::Option(option) => RawValue::Option(
+        Value::String(value) => GenericValue::String(value),
+        Value::Option(option) => GenericValue::Option(
             option.map(|value| Box::new(ron_to_raw_value(super_struct, super_key, *value))),
         ),
-        Value::Seq(values) => RawValue::Array(
+        Value::Seq(values) => GenericValue::Array(
             values
                 .into_iter()
                 .map(|value| ron_to_raw_value(super_struct, super_key, value))
@@ -103,7 +92,7 @@ fn ron_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawVal
                     (key, value)
                 })
                 .collect();
-            RawValue::Struct(RawStructValue {
+            GenericValue::Struct(GenericStruct {
                 struct_name: sub_struct_name,
                 fields: values,
             })
@@ -118,12 +107,12 @@ mod tests {
     #[test]
     fn test_non_string_keys() {
         let ron_code = r#"(100: "One hundred")"#;
-        assert!(parse_config(ron_code).is_err());
+        assert!(parse_ron(ron_code, &Options::default()).is_err());
     }
 
     #[test]
     fn test_non_struct_root_object() {
         let ron_code = r#"["key", "value"]"#;
-        assert!(parse_config(ron_code).is_err());
+        assert!(parse_ron(ron_code, &Options::default()).is_err());
     }
 }

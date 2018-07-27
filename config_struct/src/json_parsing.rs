@@ -1,50 +1,41 @@
-//! Parsing utilities for JSON config files. (Requires the `json-parsing` feature.)
-
-use std::path::Path;
-
-use failure::Error;
 use serde_json::{self, Value};
 
-use {ParsedConfig, MarkupLanguage, RawStructValue, RawValue};
+use error::GenerationError;
+use options::Options;
+use parsing;
+use value::{GenericStruct, GenericValue};
 
-/// Parse a ParsedConfig from some JSON.
-///
-/// This can then be used to generate a config struct using `create_config_module` or
-/// `write_config_module`.
-pub fn parse_config<S: AsRef<str>>(config_source: S) -> Result<ParsedConfig, Error> {
-    use parsing::{self, ParsedFields};
+pub fn parse_json(
+    json: &str,
+    options: &Options,
+) -> Result<GenericStruct, GenerationError> {
+    use parsing::ParsedFields;
 
-    let json_object: ParsedFields<Value> = serde_json::from_str(config_source.as_ref())?;
+    let json_struct: ParsedFields<Value> = serde_json::from_str(json)
+        .map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
 
-    let raw_config = parsing::parsed_to_raw_config(json_object, json_to_raw_value);
+    let generic_struct = parsing::parsed_to_generic_struct(
+        json_struct, json_to_raw_value);
 
-    Ok(ParsedConfig { filename: None, struct_value: raw_config, markup: MarkupLanguage::Json })
+    Ok(generic_struct)
 }
 
-/// Parse a ParsedConfig from a JSON file.
-///
-/// This can then be used to generate a config struct using `create_config_module` or
-/// `write_config_module`.
-pub fn parse_config_from_file<P: AsRef<Path>>(config_path: P) -> Result<ParsedConfig, Error> {
-    use parsing;
-
-    let config_source = parsing::slurp_file(config_path.as_ref())?;
-
-    parse_config(&config_source)
-}
-
-fn json_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawValue {
+fn json_to_raw_value(
+    super_struct: &str,
+    super_key: &str,
+    value: Value,
+) -> GenericValue {
     match value {
-        Value::Null => RawValue::Option(None),
-        Value::Bool(value) => RawValue::Bool(value),
+        Value::Null => GenericValue::Option(None),
+        Value::Bool(value) => GenericValue::Bool(value),
         Value::Number(value) => match (value.as_i64(), value.as_u64(), value.as_f64()) {
-            (Some(x), _, _) => RawValue::I64(x),
-            (None, Some(x), _) => RawValue::U64(x),
-            (None, None, Some(x)) => RawValue::F64(x),
+            (Some(x), _, _) => GenericValue::I64(x),
+            (None, Some(x), _) => GenericValue::U64(x),
+            (None, None, Some(x)) => GenericValue::F64(x),
             _ => unimplemented!("Should handle error here"),
         },
-        Value::String(value) => RawValue::String(value),
-        Value::Array(values) => RawValue::Array(
+        Value::String(value) => GenericValue::String(value),
+        Value::Array(values) => GenericValue::Array(
             values
                 .into_iter()
                 .map(|value| json_to_raw_value(super_struct, super_key, value))
@@ -59,7 +50,7 @@ fn json_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> RawVa
                     (key, value)
                 })
                 .collect();
-            RawValue::Struct(RawStructValue {
+            GenericValue::Struct(GenericStruct {
                 struct_name: sub_struct_name,
                 fields: values,
             })
