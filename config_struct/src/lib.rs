@@ -1,70 +1,3 @@
-//! This crate is a library for generating structs based on a config file at build time.
-//! It is intended for use in a `build.rs` file so should be included in your
-//! `[build-dependencies]`.
-//!
-//! The core library is agnostic to the markup language of the config, but there are a few
-//! features included to make it easier to use with a few markup languages:
-//!
-//! 1.  `json-parsing`
-//! 2.  `ron-parsing`
-//! 3.  `toml-parsing`
-//! 4.  `yaml-parsing`
-//!
-//! None of these are included by default, so be sure to include one in your `Cargo.toml`.
-//!
-//! # Examples
-//!
-//! ```rust,ignore
-//! // build.rs
-//! extern crate config_struct;
-//!
-//! use config_struct::toml_parsing;
-//!
-//! fn main() {
-//!     let toml_config = toml_parsing::parse_config_from_file("config.toml").unwrap();
-//!
-//!     config_struct::write_config_module(
-//!         "src/config.rs",
-//!         &toml_config,
-//!         &Default::default()).unwrap();
-//! }
-//! ```
-//!
-//! The above build script will take the following `config.toml` file and generate `config.rs`:
-//!
-//! ```toml
-//! // config.toml
-//! name = "Application"
-//! version = 5
-//! features = [
-//!     "one",
-//!     "two",
-//!     "three"
-//! ]
-//! ```
-//!
-//! ```rust,ignore
-//! // config.rs
-//! use std::borrow::Cow;
-//!
-//! #[derive(Debug, Clone, Serialize, Deserialize)]
-//! #[allow(non_camel_case_types)]
-//! pub struct Config {
-//!     pub features: Cow<'static, [Cow<'static, str>]>,
-//!     pub name: Cow<'static, str>,
-//!     pub version: i64,
-//! }
-//!
-//! pub const CONFIG: Config = Config {
-//!     features: Cow::Borrowed(&[Cow::Borrowed("one"), Cow::Borrowed("two"), Cow::Borrowed("three")]),
-//!     name: Cow::Borrowed("Application"),
-//!     version: 5,
-//! };
-//! ```
-//!
-//! Strings and arrays are represented by `Cow` types, which allows the entire Config struct to
-//! be either heap allocated at runtime, or a compile time constant, as shown above.
-
 #[cfg(feature = "json-parsing")]
 extern crate serde_json;
 
@@ -77,127 +10,137 @@ extern crate toml;
 #[cfg(feature = "yaml-parsing")]
 extern crate serde_yaml;
 
-#[cfg(feature = "json-parsing")]
-pub mod json_parsing;
-
-#[cfg(feature = "ron-parsing")]
-pub mod ron_parsing;
-
-#[cfg(feature = "toml-parsing")]
-pub mod toml_parsing;
-
-#[cfg(feature = "yaml-parsing")]
-pub mod yaml_parsing;
-
 #[macro_use]
 extern crate failure;
 
-#[cfg(
-    any(
-        feature = "json-parsing",
-        feature = "ron-parsing",
-        feature = "toml-parsing",
-        feature = "yaml-parsing"
-    )
-)]
-mod parsing;
 
+#[cfg(feature = "json-parsing")]
+mod json_parsing;
+
+#[cfg(feature = "ron-parsing")]
+mod ron_parsing;
+
+#[cfg(feature = "toml-parsing")]
+mod toml_parsing;
+
+#[cfg(feature = "yaml-parsing")]
+mod yaml_parsing;
+
+mod error;
+mod format;
 mod generation;
 mod options;
+mod parsing;
 mod validation;
 mod value;
 
 use std::path::Path;
+use value::{ParsedConfig, GenericStruct};
 
-use failure::Error;
-
+pub use error::{Error, GenerationError, OptionsError};
+pub use format::Format;
 pub use options::Options;
-pub use validation::StructGenerationError;
-pub use value::{RawStructValue, RawValue, ParsedConfig, MarkupLanguage};
 
-/// Generate Rust code for a RawStructValue.
-///
-/// This will recursively generate code for all nested structs within the given value.
-///
-/// The easiest way to get a RawStructValue is to use the `parse_config` or
-/// `parse_config_from_file` function from one of the parsing modules.
-pub fn create_config_module(
-    raw_config: &ParsedConfig,
+
+pub fn generate_config<P: AsRef<Path>>(
+    filepath: P,
     options: &Options,
-) -> Result<String, StructGenerationError> {
-    validation::validate_options(options)?;
+) -> Result<String, Error> {
+    let format = Format::from_filename(filepath.as_ref())?;
 
+    generate_config_with_format(format, filepath, options)
+}
+
+pub fn generate_config_with_format<P: AsRef<Path>>(
+    format: Format,
+    filepath: P,
+    options: &Options,
+) -> Result<String, Error> {
+    let source = std::fs::read_to_string(filepath.as_ref())?;
+    let output = generate_config_from_source(format, source, options)?;
+
+    Ok(output)
+}
+
+pub fn generate_config_from_source<S: AsRef<str>>(
+    format: Format,
+    source: S,
+    options: &Options,
+) -> Result<String, GenerationError> {
+    options.validate()?;
+
+    let source = source.as_ref();
     let config = {
-        // TODO: Ugh, this is really ugly
-        let mut config = raw_config.struct_value.clone();
-        config.struct_name = options.struct_name.clone();
-        config
+        let mut root_struct: GenericStruct = match format {
+            #[cfg(feature = "json-parsing")]
+            Format::Json => json_parsing::parse_json(source, options)?,
+
+            #[cfg(feature = "ron-parsing")]
+            Format::Ron => ron_parsing::parse_ron(source, options)?,
+
+            #[cfg(feature = "toml-parsing")]
+            Format::Toml => toml_parsing::parse_toml(source, options)?,
+
+            #[cfg(feature = "yaml-parsing")]
+            Format::Yaml => yaml_parsing::parse_yaml(source, options)?,
+        };
+        root_struct.struct_name = options.struct_name.clone();
+
+        ParsedConfig {
+            filename: None, // TODO: Fix this
+            format,
+            root_struct: root_struct,
+        }
     };
 
-    validation::validate_struct_value(&config)?;
+    validation::validate_struct(&config.root_struct)?;
 
     let mut code = String::new();
 
-    code.push_str("use std::borrow::Cow;\n\n");
+    const IMPORTS: &str = "use std::borrow::Cow;\n\n";
+    code.push_str(IMPORTS);
 
-    let structs = generation::generate_structs(&config, options);
+    let structs = generation::generate_structs(&config.root_struct, options);
     code.push_str(&structs);
-
-    let const_name = options
-        .const_name
-        .clone()
-        .unwrap_or_else(|| options.struct_name.to_uppercase());
 
     code.push_str(&format!(
         "pub const {}: {} = {};\n",
-        const_name,
+        options.real_const_name(),
         options.struct_name,
-        generation::struct_value_string(&config, 0)
+        generation::struct_value_string(&config.root_struct, 0)
     ));
 
     Ok(code)
 }
 
-/// Generate Rust code for a RawStructValue and write it to a file.
-///
-/// This simply writes the result of `create_config_module` to a file.
-pub fn write_config_module<P>(
-    module_path: P,
-    raw_config: &ParsedConfig,
+pub fn create_config<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
+    filepath: SrcPath,
+    destination: DstPath,
     options: &Options,
-) -> Result<(), Error>
-where
-    P: AsRef<Path>,
-{
-    use std::fs::File;
-    use std::io::Write;
-
-    let code = create_config_module(raw_config, options)?;
-
-    let should_write = {
-        if options.always_write {
-            true
-        } else {
-            let existing_code = read_entire_file(module_path.as_ref())
-                .unwrap_or_default();
-            code != existing_code
-        }
-    };
-
-    if should_write {
-        let file = &mut File::create(module_path)?;
-        file.write_all(code.as_bytes())?;
-    }
-
+) -> Result<(), Error> {
+    let output = generate_config(filepath, options)?;
+    std::fs::write(destination, output)?;
     Ok(())
 }
 
-fn read_entire_file(path: &Path) -> std::io::Result<String> {
-    use std::fs::File;
-    use std::io::Read;
+pub fn create_config_with_format<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
+    format: Format,
+    filepath: SrcPath,
+    destination: DstPath,
+    options: &Options,
+) -> Result<(), Error> {
+    let output = generate_config_with_format(format, filepath, options)?;
+    std::fs::write(destination, output)?;
+    Ok(())
+}
 
-    let mut file = File::open(path)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    Ok(contents)
+pub fn create_config_from_source<S: AsRef<str>, P: AsRef<Path>>(
+    format: Format,
+    source: S,
+    destination: P,
+    options: &Options,
+) -> Result<(), Error> {
+    let output = generate_config_from_source(format, source, options)?;
+    std::fs::write(destination, output)?;
+    Ok(())
 }

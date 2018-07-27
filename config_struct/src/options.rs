@@ -1,25 +1,26 @@
-/// The set of options for generating a config struct.
-#[derive(Debug, Clone)]
+use error::OptionsError;
+use validation;
+
+#[derive(Debug)]
 pub struct Options {
-    /// The name of the resulting struct.
-    ///
-    /// Defaults to `"Config"`.
     pub struct_name: String,
-
-    /// The name of the const instance of the resulting struct.
-    ///
-    /// Defaults to `None`, which corresponds to `struct_name` in uppercase.
     pub const_name: Option<String>,
-
-    /// A list of the traits to derive on the resulting struct.
-    ///
-    /// Defaults to `["Debug", "Clone", "Serialize", "Deserialize"]`.
+    pub generate_const: bool,
     pub derived_traits: Vec<String>,
+}
 
-    /// Whether to write the config module even if it is unchanged.
-    ///
-    /// Defaults to `false`.
-    pub always_write: bool,
+impl Options {
+    pub fn validate(&self) -> Result<(), OptionsError> {
+        if !validation::valid_identifier(&self.struct_name) {
+            return Err(OptionsError::InvalidStructName(self.struct_name.clone()));
+        }
+
+        Ok(())
+    }
+
+    pub fn real_const_name(&self) -> String {
+        self.const_name.clone().unwrap_or_else(|| self.struct_name.to_uppercase())
+    }
 }
 
 impl Default for Options {
@@ -27,13 +28,13 @@ impl Default for Options {
         Options {
             struct_name: "Config".to_owned(),
             const_name: None,
+            generate_const: true,
             derived_traits: vec![
                 "Debug".to_owned(),
                 "Clone".to_owned(),
                 "Serialize".to_owned(),
                 "Deserialize".to_owned(),
             ],
-            always_write: false,
         }
     }
 }
