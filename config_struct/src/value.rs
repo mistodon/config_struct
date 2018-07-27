@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use format::Format;
+use std::collections::BTreeMap;
 
 /// Represents a parsed config struct.
 #[derive(Debug, Clone)]

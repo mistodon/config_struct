@@ -5,26 +5,18 @@ use options::Options;
 use parsing;
 use value::{GenericStruct, GenericValue};
 
-pub fn parse_toml(
-    toml: &str,
-    options: &Options,
-) -> Result<GenericStruct, GenerationError> {
+pub fn parse_toml(toml: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let toml_struct: ParsedFields<Value> = toml::from_str(toml)
         .map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
 
-    let generic_struct = parsing::parsed_to_generic_struct(
-        toml_struct, toml_to_raw_value);
+    let generic_struct = parsing::parsed_to_generic_struct(toml_struct, toml_to_raw_value);
 
     Ok(generic_struct)
 }
 
-fn toml_to_raw_value(
-    super_struct: &str,
-    super_key: &str,
-    value: Value,
-) -> GenericValue {
+fn toml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> GenericValue {
     match value {
         Value::Boolean(value) => GenericValue::Bool(value),
         Value::Integer(value) => GenericValue::I64(value),

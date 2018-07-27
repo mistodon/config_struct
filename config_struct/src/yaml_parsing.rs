@@ -5,26 +5,18 @@ use options::Options;
 use parsing;
 use value::{GenericStruct, GenericValue};
 
-pub fn parse_yaml(
-    yaml: &str,
-    options: &Options,
-) -> Result<GenericStruct, GenerationError> {
+pub fn parse_yaml(yaml: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let yaml_struct: ParsedFields<Value> = serde_yaml::from_str(yaml)
         .map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
 
-    let generic_struct = parsing::parsed_to_generic_struct(
-        yaml_struct, yaml_to_raw_value);
+    let generic_struct = parsing::parsed_to_generic_struct(yaml_struct, yaml_to_raw_value);
 
     Ok(generic_struct)
 }
 
-fn yaml_to_raw_value(
-    super_struct: &str,
-    super_key: &str,
-    value: Value,
-) -> GenericValue {
+fn yaml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> GenericValue {
     match value {
         Value::Null => GenericValue::Option(None),
         Value::Bool(value) => GenericValue::Bool(value),
