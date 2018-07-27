@@ -1,7 +1,7 @@
 use error::OptionsError;
 use validation;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Options {
     pub struct_name: String,
     pub const_name: Option<String>,
