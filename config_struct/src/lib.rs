@@ -98,12 +98,14 @@ pub fn generate_config_from_source<S: AsRef<str>>(
     let structs = generation::generate_structs(&config.root_struct, options);
     code.push_str(&structs);
 
-    code.push_str(&format!(
-        "pub const {}: {} = {};\n",
-        options.real_const_name(),
-        options.struct_name,
-        generation::struct_value_string(&config.root_struct, 0)
-    ));
+    if options.generate_const {
+        code.push_str(&format!(
+            "pub const {}: {} = {};\n",
+            options.real_const_name(),
+            options.struct_name,
+            generation::struct_value_string(&config.root_struct, 0)
+        ));
+    }
 
     Ok(code)
 }
