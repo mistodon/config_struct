@@ -1,8 +1,20 @@
 language: rust
 cache: cargo
+before_script:
+  - rustup component add rustfmt-preview
+  - rustup component add clippy-preview --toolchain=nightly
 script:
-  - (cd config_struct && cargo test --all-features)
-  - (cd test_config_struct && cargo test)
-  - (cd test_config_struct && cargo test --release)
-  - (cd config_struct && cargo fmt --all -- --write-mode=diff && cargo +nightly clippy --all-features -- -D clippy)
-  - (cd test_config_struct && cargo fmt --all -- --write-mode=diff && cargo +nightly clippy -- -D clippy)
+  - |
+    pushd config_struct
+    && cargo test --all-features
+    && cargo fmt --all -- --write-mode=diff
+    && cargo +nightly clippy --all-features -- -D clippy
+    && popd
+
+  - |
+    pushd test_config_struct
+    && cargo test
+    && cargo test --release
+    && cargo fmt --all -- --write-mode=diff
+    && cargo +nightly clippy --all-features -- -D clippy
+    && popd
