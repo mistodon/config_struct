@@ -1,0 +1,7 @@
+language: rust
+script:
+  - (cd config_struct && cargo test --all-features)
+  - (cd test_config_struct && cargo test)
+  - (cd test_config_struct && cargo test --release)
+  - (cd config_struct && cargo fmt --all -- --write-mode=diff && cargo +nightly clippy --all-features -- -D clippy)
+  - (cd test_config_struct && cargo fmt --all -- --write-mode=diff && cargo +nightly clippy -- -D clippy)

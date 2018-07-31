@@ -1,5 +1,5 @@
 [package]
-name = "config_struct_test"
+name = "test_config_struct"
 version = "0.1.0"
 authors = ["***Realname*** ***Lastname*** <***redacted.email@redacted.nope***>"]
 

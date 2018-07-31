@@ -54,7 +54,7 @@ pub const CONFIG: Config = Config {
 };
 ```
 
-config_struct_test
+test_config_struct
 ===
 
 A crate with a build script for testing `config_struct`. Run `cargo test` in that directory.
