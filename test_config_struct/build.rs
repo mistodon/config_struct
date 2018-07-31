@@ -3,8 +3,7 @@ extern crate config_struct;
 fn main() {
     use config_struct::{self, DynamicLoading, Options};
 
-    let debug_string = &format!("dir: {}", std::env::current_dir().unwrap().display());
-    config_struct::create_config("config.json", "src/config/json.rs", &Options::default()).expect(debug_string);
+    config_struct::create_config("config.json", "src/config/json.rs", &Options::default()).unwrap();
 
     config_struct::create_config(
         "config.ron",
