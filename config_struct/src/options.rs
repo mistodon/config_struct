@@ -7,6 +7,15 @@ pub struct Options {
     pub const_name: Option<String>,
     pub generate_const: bool,
     pub derived_traits: Vec<String>,
+    pub generate_load_fns: bool,
+    pub dynamic_loading: DynamicLoading,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DynamicLoading {
+    Always,
+    DebugOnly,
+    Never,
 }
 
 impl Options {
@@ -37,6 +46,8 @@ impl Default for Options {
                 "Serialize".to_owned(),
                 "Deserialize".to_owned(),
             ],
+            generate_load_fns: true,
+            dynamic_loading: DynamicLoading::DebugOnly,
         }
     }
 }
