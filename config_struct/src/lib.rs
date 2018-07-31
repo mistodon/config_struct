@@ -15,8 +15,8 @@
 //! 3.  `toml-parsing`
 //! 4.  `yaml-parsing`
 //!
-//! None of these are included by default, so be sure to include one in your
-//! `Cargo.toml`.
+//! Only `toml-parsing` is included by default, so be sure to specify the features
+//! you need in your `Cargo.toml` file.
 //!
 //! # Examples
 //!
