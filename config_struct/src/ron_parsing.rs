@@ -15,7 +15,7 @@ use options::Options;
 use parsing;
 use value::{GenericStruct, GenericValue};
 
-pub fn parse_ron(ron: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
+pub fn parse_ron(ron: &str, _options: &Options) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let ron_struct = {
@@ -48,6 +48,7 @@ pub fn parse_ron(ron: &str, options: &Options) -> Result<GenericStruct, Generati
     Ok(generic_struct)
 }
 
+#[allow(float_cmp)]
 fn ron_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> GenericValue {
     match value {
         Value::Unit => GenericValue::Unit,

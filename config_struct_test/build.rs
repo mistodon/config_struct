@@ -1,7 +1,7 @@
 extern crate config_struct;
 
 fn main() {
-    use config_struct::{self, Options, DynamicLoading};
+    use config_struct::{self, DynamicLoading, Options};
 
     config_struct::create_config("config.json", "src/config/json.rs", &Options::default()).unwrap();
 
