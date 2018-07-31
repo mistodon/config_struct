@@ -10,6 +10,8 @@ pub struct Options {
     pub generate_load_fns: bool,
     pub dynamic_loading: DynamicLoading,
     pub create_dirs: bool,
+    pub default_float_size: FloatSize,
+    pub default_int_size: IntSize,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -17,6 +19,21 @@ pub enum DynamicLoading {
     Always,
     DebugOnly,
     Never,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FloatSize {
+    F32,
+    F64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IntSize {
+    I8,
+    I16,
+    I32,
+    I64,
+    ISize,
 }
 
 impl Options {
@@ -50,6 +67,8 @@ impl Default for Options {
             generate_load_fns: true,
             dynamic_loading: DynamicLoading::DebugOnly,
             create_dirs: true,
+            default_float_size: FloatSize::F64,
+            default_int_size: IntSize::I64,
         }
     }
 }
