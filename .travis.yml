@@ -7,28 +7,28 @@ matrix:
         - rustup component add rustfmt-preview
       script:
         - |
-          pushd config_struct
-          && cargo test --all-features
-          && cargo fmt --all -- --write-mode=diff
-          && popd
+          pushd config_struct &&
+          cargo test --all-features &&
+          cargo fmt --all -- --write-mode=diff &&
+          popd
 
         - |
-          pushd test_config_struct
-          && cargo test
-          && cargo test --release
-          && cargo fmt --all -- --write-mode=diff
-          && popd
+          pushd test_config_struct &&
+          cargo test &&
+          cargo test --release &&
+          cargo fmt --all -- --write-mode=diff &&
+          popd
 
     - rust: nightly
       before_script:
         - rustup component add clippy-preview
       script:
         - |
-          pushd config_struct
-          && cargo clippy --all-features -- -D clippy
-          && popd
+          pushd config_struct &&
+          cargo clippy --all-features -- -D clippy &&
+          popd
 
         - |
-          pushd test_config_struct
-          && cargo clippy --all-features -- -D clippy
-          && popd
+          pushd test_config_struct &&
+          cargo clippy --all-features -- -D clippy &&
+          popd
