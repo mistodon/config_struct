@@ -13,7 +13,7 @@ fn main() {
             struct_name: "RonConfig".to_owned(),
             ..Default::default()
         },
-    ).expect(debug_string);
+    ).unwrap();
 
     config_struct::create_config(
         "config.toml",
@@ -22,7 +22,7 @@ fn main() {
             struct_name: "TomlConfig".to_owned(),
             ..Default::default()
         },
-    ).expect(debug_string);
+    ).unwrap();
 
     config_struct::create_config(
         "config.yaml",
@@ -32,7 +32,7 @@ fn main() {
             const_name: Some("YAML_CONFIG".to_owned()),
             ..Default::default()
         },
-    ).expect(debug_string);
+    ).unwrap();
 
     config_struct::create_config(
         "tests/example_config.json",
@@ -43,7 +43,7 @@ fn main() {
             dynamic_loading: DynamicLoading::Always,
             ..Default::default()
         },
-    ).expect(debug_string);
+    ).unwrap();
 
     config_struct::create_config(
         "tests/example_config.json",
@@ -54,7 +54,7 @@ fn main() {
             dynamic_loading: DynamicLoading::DebugOnly,
             ..Default::default()
         },
-    ).expect(debug_string);
+    ).unwrap();
 
     config_struct::create_config(
         "tests/example_config.json",
@@ -65,5 +65,5 @@ fn main() {
             dynamic_loading: DynamicLoading::Never,
             ..Default::default()
         },
-    ).expect(debug_string);
+    ).unwrap();
 }
