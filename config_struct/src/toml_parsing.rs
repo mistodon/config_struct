@@ -5,7 +5,7 @@ use options::Options;
 use parsing;
 use value::{GenericStruct, GenericValue};
 
-pub fn parse_toml(toml: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
+pub fn parse_toml(toml: &str, _options: &Options) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let toml_struct: ParsedFields<Value> = toml::from_str(toml)

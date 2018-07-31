@@ -1,3 +1,5 @@
+#![allow(unknown_lints)]
+
 #[cfg(feature = "json-parsing")]
 extern crate serde_json;
 
@@ -39,7 +41,7 @@ use value::GenericStruct;
 
 pub use error::{Error, GenerationError, OptionsError};
 pub use format::Format;
-pub use options::{Options, DynamicLoading};
+pub use options::{DynamicLoading, Options};
 
 pub fn generate_config<P: AsRef<Path>>(filepath: P, options: &Options) -> Result<String, Error> {
     let format = Format::from_filename(filepath.as_ref())?;
@@ -54,8 +56,7 @@ pub fn generate_config_with_format<P: AsRef<Path>>(
 ) -> Result<String, Error> {
     let path = filepath.as_ref();
     let source = std::fs::read_to_string(path)?;
-    let output = generate_config_from_source_with_filepath(
-        format, &source, options, Some(path))?;
+    let output = generate_config_from_source_with_filepath(format, &source, options, Some(path))?;
 
     Ok(output)
 }
@@ -65,8 +66,7 @@ pub fn generate_config_from_source<S: AsRef<str>>(
     source: S,
     options: &Options,
 ) -> Result<String, GenerationError> {
-    generate_config_from_source_with_filepath(
-        format, source.as_ref(), options, None)
+    generate_config_from_source_with_filepath(format, source.as_ref(), options, None)
 }
 
 fn generate_config_from_source_with_filepath(
@@ -105,8 +105,8 @@ fn generate_config_from_source_with_filepath(
     let structs = generation::generate_structs(&config, options);
     code.push_str(&structs);
 
-    let requires_const = options.generate_load_fns
-        && options.dynamic_loading != DynamicLoading::Always;
+    let requires_const =
+        options.generate_load_fns && options.dynamic_loading != DynamicLoading::Always;
 
     let struct_name = &options.struct_name;
     let const_name = &options.real_const_name();
@@ -123,23 +123,23 @@ fn generate_config_from_source_with_filepath(
     if options.generate_load_fns {
         let filepath = filepath.ok_or(GenerationError::MissingFilePath);
 
-        let dynamic_impl = filepath.map(
-            |path| load_fns::dynamic_load_impl(format, struct_name, path));
+        let dynamic_impl =
+            filepath.map(|path| load_fns::dynamic_load_impl(format, struct_name, path));
 
         let static_impl = load_fns::static_load_impl(struct_name, const_name);
 
         let impl_string = match options.dynamic_loading {
             DynamicLoading::Always => dynamic_impl?,
             DynamicLoading::Never => static_impl,
-            DynamicLoading::DebugOnly => format!("
+            DynamicLoading::DebugOnly => format!(
+                "
 #[cfg(debug_assertions)]
 {}
 
 #[cfg(not(debug_assertions))]
 {}
 ",
-                dynamic_impl?,
-                static_impl,
+                dynamic_impl?, static_impl,
             ),
         };
 

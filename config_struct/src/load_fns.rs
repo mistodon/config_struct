@@ -1,12 +1,7 @@
-use std::path::Path;
 use format::Format;
+use std::path::Path;
 
-pub fn dynamic_load_impl(
-    format: Format,
-    struct_name: &str,
-    filepath: &Path,
-) -> String {
-
+pub fn dynamic_load_impl(format: Format, struct_name: &str, filepath: &Path) -> String {
     let load_expression = match format {
         Format::Json => "::serde_json::from_str(&file_contents)",
         Format::Ron => "::ron::de::from_str(&file_contents)",
@@ -29,10 +24,7 @@ r#"impl {struct_name} {{
 }}"#, struct_name=struct_name, filepath=filepath.display(), load_expression=load_expression)
 }
 
-pub fn static_load_impl(
-    struct_name: &str,
-    const_name: &str,
-) -> String {
+pub fn static_load_impl(struct_name: &str, const_name: &str) -> String {
     format!(
 r#"impl {struct_name} {{
     #[inline(always)]

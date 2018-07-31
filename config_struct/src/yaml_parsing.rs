@@ -5,7 +5,7 @@ use options::Options;
 use parsing;
 use value::{GenericStruct, GenericValue};
 
-pub fn parse_yaml(yaml: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
+pub fn parse_yaml(yaml: &str, _options: &Options) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let yaml_struct: ParsedFields<Value> = serde_yaml::from_str(yaml)

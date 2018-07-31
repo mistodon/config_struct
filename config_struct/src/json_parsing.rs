@@ -5,7 +5,7 @@ use options::Options;
 use parsing;
 use value::{GenericStruct, GenericValue};
 
-pub fn parse_json(json: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
+pub fn parse_json(json: &str, _options: &Options) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let json_struct: ParsedFields<Value> = serde_json::from_str(json)
