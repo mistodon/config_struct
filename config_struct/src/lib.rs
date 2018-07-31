@@ -99,7 +99,10 @@ fn generate_config_from_source_with_filepath(
 
     let mut code = String::new();
 
-    const HEADER: &str = "#![allow(dead_code)]\n\nuse std::borrow::Cow;\n\n";
+    const HEADER: &str = "#![cfg_attr(rustfmt, rustfmt_skip)]
+#![allow(dead_code)]
+
+use std::borrow::Cow;\n\n";
     code.push_str(HEADER);
 
     let structs = generation::generate_structs(&config, options);
