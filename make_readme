@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+cat config_struct/README.md > README.md
+cat test_config_struct/README.md >> README.md
