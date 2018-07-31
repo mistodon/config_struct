@@ -156,6 +156,7 @@ pub fn create_config<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
 ) -> Result<(), Error> {
     let output = generate_config(filepath, options)?;
     std::fs::write(destination, output)?;
+
     Ok(())
 }
 
@@ -167,6 +168,7 @@ pub fn create_config_with_format<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
 ) -> Result<(), Error> {
     let output = generate_config_with_format(format, filepath, options)?;
     std::fs::write(destination, output)?;
+
     Ok(())
 }
 
@@ -178,5 +180,6 @@ pub fn create_config_from_source<S: AsRef<str>, P: AsRef<Path>>(
 ) -> Result<(), Error> {
     let output = generate_config_from_source(format, source, options)?;
     std::fs::write(destination, output)?;
+
     Ok(())
 }
