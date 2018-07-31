@@ -10,10 +10,8 @@ keywords = ["build", "config", "parsing", "generator"]
 categories = ["config", "parsing"]
 license = "MIT"
 
-
 [package.metadata.docs.rs]
 all-features = true
-
 
 [features]
 default = []
@@ -21,7 +19,6 @@ json-parsing = ["serde_json"]
 ron-parsing = ["ron"]
 toml-parsing = ["toml"]
 yaml-parsing = ["serde_yaml"]
-
 
 [dependencies]
 failure = "~0.1.1"

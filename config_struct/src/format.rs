@@ -2,6 +2,11 @@ use std::path::Path;
 
 use error::*;
 
+/// Represents an input markup format for a config file.
+///
+/// The variants that exist correspond to the features that have been enabled.
+/// For example, if the `json-parsing` feature is not enabled, then the
+/// `Format::Json` variant will not exist.
 #[derive(Debug, Clone, Copy)]
 pub enum Format {
     #[cfg(feature = "json-parsing")]
