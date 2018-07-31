@@ -9,6 +9,7 @@ pub struct Options {
     pub derived_traits: Vec<String>,
     pub generate_load_fns: bool,
     pub dynamic_loading: DynamicLoading,
+    pub create_dirs: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -48,6 +49,7 @@ impl Default for Options {
             ],
             generate_load_fns: true,
             dynamic_loading: DynamicLoading::DebugOnly,
+            create_dirs: true,
         }
     }
 }
