@@ -36,6 +36,9 @@ mod parsing;
 mod validation;
 mod value;
 
+#[cfg(not(any(feature = "json-parsing", feature = "ron-parsing", feature = "toml-parsing", feature = "yaml-parsing")))]
+compile_error!("The config_struct crate requires at least one parsing feature to be enabled:\n {json-parsing, ron-parsing, toml-parsing, yaml-parsing}");
+
 use std::path::Path;
 use value::GenericStruct;
 

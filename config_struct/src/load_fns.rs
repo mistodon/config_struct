@@ -3,9 +3,16 @@ use std::path::Path;
 
 pub fn dynamic_load_impl(format: Format, struct_name: &str, filepath: &Path) -> String {
     let load_expression = match format {
+        #[cfg(feature = "json-parsing")]
         Format::Json => "::serde_json::from_str(&file_contents)",
+
+        #[cfg(feature = "ron-parsing")]
         Format::Ron => "::ron::de::from_str(&file_contents)",
+
+        #[cfg(feature = "toml-parsing")]
         Format::Toml => "::toml::from_str(&file_contents)",
+
+        #[cfg(feature = "yaml-parsing")]
         Format::Yaml => "::serde_yaml::from_str(&file_contents)",
     };
 
