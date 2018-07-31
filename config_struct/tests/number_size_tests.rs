@@ -1,12 +1,12 @@
 extern crate config_struct;
-extern crate serde_json;
 extern crate ron;
+extern crate serde_json;
 extern crate serde_yaml;
 extern crate toml;
 
 #[test]
 fn test_number_sizes() {
-    use config_struct::{Options, FloatSize, IntSize, Format};
+    use config_struct::{FloatSize, Format, IntSize, Options};
 
     let basic_options = Options {
         generate_load_fns: false,
@@ -49,10 +49,7 @@ fn test_number_sizes() {
         ..basic_options.clone()
     };
 
-    let float_tests = &[
-        (f32_opts, "f32"),
-        (f64_opts, "f64"),
-    ];
+    let float_tests = &[(f32_opts, "f32"), (f64_opts, "f64")];
 
     let int_tests = &[
         (i8_opts, "i8"),
@@ -78,25 +75,27 @@ fn test_number_sizes() {
 
     for &(ref options, expected_type) in float_tests {
         for &(format, code) in float_inputs {
-            let generated_code = config_struct::generate_config_from_source(
-                format, code, options).unwrap();
+            let generated_code =
+                config_struct::generate_config_from_source(format, code, options).unwrap();
 
             assert!(
                 generated_code.contains(expected_type),
                 "Expected to find {}",
-                expected_type);
+                expected_type
+            );
         }
     }
 
     for &(ref options, expected_type) in int_tests {
         for &(format, code) in int_inputs {
-            let generated_code = config_struct::generate_config_from_source(
-                format, code, options).unwrap();
+            let generated_code =
+                config_struct::generate_config_from_source(format, code, options).unwrap();
 
             assert!(
                 generated_code.contains(expected_type),
                 "Expected to find {}",
-                expected_type);
+                expected_type
+            );
         }
     }
 }
