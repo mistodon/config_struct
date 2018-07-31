@@ -9,14 +9,14 @@ matrix:
         - |
           pushd config_struct &&
           cargo test --all-features &&
-          cargo fmt --all -- --write-mode=diff &&
+          cargo fmt -- --write-mode=check &&
           popd
 
         - |
           pushd test_config_struct &&
           cargo test &&
           cargo test --release &&
-          cargo fmt --all -- --write-mode=diff &&
+          cargo fmt -- --write-mode=check &&
           popd
 
     - rust: nightly

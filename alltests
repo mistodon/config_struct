@@ -10,3 +10,12 @@ echo -e "\033[36;1mRunning integration tests:\033[0m"
 
 echo -e "\033[36;1mRunning release-mode integration tests:\033[0m"
 (cd test_config_struct && cargo test --release)
+
+echo -e "\033[36;1mRunning rustfmt:\033[0m"
+(cd config_struct && cargo fmt -- --write-mode=check)
+(cd test_config_struct && cargo fmt -- --write-mode=check)
+
+echo -e "\033[36;1mRunning clippy:\033[0m"
+(cd config_struct && cargo +nightly clippy --all-features -- -D clippy)
+(cd test_config_struct && cargo +nightly clippy --all-features -- -D clippy)
+
