@@ -2,3 +2,6 @@ target/
 **/*.rs.bk
 Cargo.lock
 *.swp
+config_struct_test/src/config/*.rs
+!config_struct_test/src/mod.rs
+config_struct_test/tests/config/*.rs
