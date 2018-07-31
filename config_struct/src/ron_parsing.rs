@@ -15,7 +15,7 @@ use options::Options;
 use parsing;
 use value::{GenericStruct, GenericValue};
 
-pub fn parse_ron(ron: &str, _options: &Options) -> Result<GenericStruct, GenerationError> {
+pub fn parse_ron(ron: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let ron_struct = {
@@ -43,13 +43,18 @@ pub fn parse_ron(ron: &str, _options: &Options) -> Result<GenericStruct, Generat
         }
     };
 
-    let generic_struct = parsing::parsed_to_generic_struct(ron_struct, ron_to_raw_value);
+    let generic_struct = parsing::parsed_to_generic_struct(ron_struct, options, ron_to_raw_value);
 
     Ok(generic_struct)
 }
 
 #[allow(float_cmp)]
-fn ron_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> GenericValue {
+fn ron_to_raw_value(
+    super_struct: &str,
+    super_key: &str,
+    value: Value,
+    options: &Options,
+) -> GenericValue {
     match value {
         Value::Unit => GenericValue::Unit,
         Value::Bool(value) => GenericValue::Bool(value),
@@ -58,19 +63,20 @@ fn ron_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> Generi
             let float = value.get();
 
             if float.trunc() == float {
-                GenericValue::I64(float as i64)
+                parsing::preferred_int(float as i64, options.default_int_size)
             } else {
-                GenericValue::F64(float)
+                parsing::preferred_float(float, options.default_float_size)
             }
         }
         Value::String(value) => GenericValue::String(value),
         Value::Option(option) => GenericValue::Option(
-            option.map(|value| Box::new(ron_to_raw_value(super_struct, super_key, *value))),
+            option
+                .map(|value| Box::new(ron_to_raw_value(super_struct, super_key, *value, options))),
         ),
         Value::Seq(values) => GenericValue::Array(
             values
                 .into_iter()
-                .map(|value| ron_to_raw_value(super_struct, super_key, value))
+                .map(|value| ron_to_raw_value(super_struct, super_key, value, options))
                 .collect(),
         ),
         Value::Map(values) => {
@@ -85,7 +91,7 @@ fn ron_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> Generi
                             unimplemented!("We should handle an error here");
                         }
                     };
-                    let value = ron_to_raw_value(&sub_struct_name, &key, value);
+                    let value = ron_to_raw_value(&sub_struct_name, &key, value, options);
                     (key, value)
                 })
                 .collect();

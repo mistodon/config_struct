@@ -5,28 +5,33 @@ use options::Options;
 use parsing;
 use value::{GenericStruct, GenericValue};
 
-pub fn parse_toml(toml: &str, _options: &Options) -> Result<GenericStruct, GenerationError> {
+pub fn parse_toml(toml: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let toml_struct: ParsedFields<Value> = toml::from_str(toml)
         .map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
 
-    let generic_struct = parsing::parsed_to_generic_struct(toml_struct, toml_to_raw_value);
+    let generic_struct = parsing::parsed_to_generic_struct(toml_struct, options, toml_to_raw_value);
 
     Ok(generic_struct)
 }
 
-fn toml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> GenericValue {
+fn toml_to_raw_value(
+    super_struct: &str,
+    super_key: &str,
+    value: Value,
+    options: &Options,
+) -> GenericValue {
     match value {
         Value::Boolean(value) => GenericValue::Bool(value),
-        Value::Integer(value) => GenericValue::I64(value),
-        Value::Float(value) => GenericValue::F64(value),
+        Value::Integer(value) => parsing::preferred_int(value, options.default_int_size),
+        Value::Float(value) => parsing::preferred_float(value, options.default_float_size),
         Value::String(value) => GenericValue::String(value),
         Value::Datetime(value) => GenericValue::String(value.to_string()),
         Value::Array(values) => GenericValue::Array(
             values
                 .into_iter()
-                .map(|value| toml_to_raw_value(super_struct, super_key, value))
+                .map(|value| toml_to_raw_value(super_struct, super_key, value, options))
                 .collect(),
         ),
         Value::Table(values) => {
@@ -34,7 +39,7 @@ fn toml_to_raw_value(super_struct: &str, super_key: &str, value: Value) -> Gener
             let values = values
                 .into_iter()
                 .map(|(key, value)| {
-                    let value = toml_to_raw_value(&sub_struct_name, &key, value);
+                    let value = toml_to_raw_value(&sub_struct_name, &key, value, options);
                     (key, value)
                 })
                 .collect();
