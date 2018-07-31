@@ -1,13 +1,4 @@
-use format::Format;
 use std::collections::BTreeMap;
-
-/// Represents a parsed config struct.
-#[derive(Debug, Clone)]
-pub struct ParsedConfig {
-    pub filename: Option<String>,
-    pub format: Format,
-    pub root_struct: GenericStruct,
-}
 
 /// Represents a Rust struct.
 #[derive(Debug, Clone)]

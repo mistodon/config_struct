@@ -28,6 +28,12 @@ mod json_tests {
     }
 
     #[test]
+    fn test_load_function() {
+        let config = Config::load();
+        assert_eq!(config.name, CONFIG.name);
+    }
+
+    #[test]
     fn test_simple_values() {
         assert_eq!(CONFIG.name, "Config name");
         assert_eq!(CONFIG.nothing, None);
@@ -77,6 +83,12 @@ mod ron_tests {
     }
 
     #[test]
+    fn test_load_function() {
+        let config = RonConfig::load();
+        assert_eq!(config.name, RONCONFIG.name);
+    }
+
+    #[test]
     fn test_simple_values() {
         assert_eq!(RONCONFIG.name, "Config name");
         assert_eq!(RONCONFIG.unit, ());
@@ -123,6 +135,12 @@ mod toml_tests {
         let toml_source = include_str!("../config.toml");
         let conf: TomlConfig = toml::from_str(toml_source).unwrap();
         assert_eq!(conf.name, "Config name");
+    }
+
+    #[test]
+    fn test_load_function() {
+        let config = TomlConfig::load();
+        assert_eq!(config.name, TOMLCONFIG.name);
     }
 
     #[test]
@@ -194,6 +212,12 @@ mod yaml_tests {
         let yaml_source = include_str!("../config.yaml");
         let conf: YamlConfig = serde_yaml::from_str(yaml_source).unwrap();
         assert_eq!(conf.name, "Config name");
+    }
+
+    #[test]
+    fn test_load_function() {
+        let config = YamlConfig::load();
+        assert_eq!(config.name, YAML_CONFIG.name);
     }
 
     #[test]

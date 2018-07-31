@@ -25,6 +25,10 @@ pub enum GenerationError {
     )]
     HeterogenousArray(String),
 
+    #[fail(display = "Cannot generate dynamic loading functions without a filename.
+(Generate struct from a file, set generate_load_fns: false, or set dynamic_loading: DynamicLoading::Never to fix.)")]
+    MissingFilePath,
+
     #[fail(display = "Deserialization failed: {}", _0)]
     DeserializationFailed(String),
 

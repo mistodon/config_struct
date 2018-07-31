@@ -26,6 +26,7 @@ create_config_from_source(format, source, destination, options)
 8.  runtime_config_path = None (Autodetect from filename arg)
 9.  load_dynamically = LoadDynamically::DebugOnly*
 10. max_array_size = 0 // Meaning all "arrays" are slices/vecs
+11. force_numbers_to_float = false
 
 *LoadDynamically = {Always, DebugOnly, Never}
     (This overrides generate_const if it not set to Always.)
