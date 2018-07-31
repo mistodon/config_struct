@@ -1,7 +1,7 @@
 extern crate config_struct;
 
 fn main() {
-    use config_struct::{self, Options};
+    use config_struct::{self, Options, DynamicLoading};
 
     config_struct::create_config("config.json", "src/config/json.rs", &Options::default()).unwrap();
 
@@ -29,6 +29,39 @@ fn main() {
         &Options {
             struct_name: "YamlConfig".to_owned(),
             const_name: Some("YAML_CONFIG".to_owned()),
+            ..Default::default()
+        },
+    ).unwrap();
+
+    config_struct::create_config(
+        "tests/example_config.json",
+        "tests/config/dynamic.rs",
+        &Options {
+            struct_name: "DynamicConfig".to_owned(),
+            const_name: Some("DYNAMIC_CONFIG".to_owned()),
+            dynamic_loading: DynamicLoading::Always,
+            ..Default::default()
+        },
+    ).unwrap();
+
+    config_struct::create_config(
+        "tests/example_config.json",
+        "tests/config/dependent.rs",
+        &Options {
+            struct_name: "DependentConfig".to_owned(),
+            const_name: Some("DEPENDENT_CONFIG".to_owned()),
+            dynamic_loading: DynamicLoading::DebugOnly,
+            ..Default::default()
+        },
+    ).unwrap();
+
+    config_struct::create_config(
+        "tests/example_config.json",
+        "tests/config/static_config.rs",
+        &Options {
+            struct_name: "StaticConfig".to_owned(),
+            const_name: Some("STATIC_CONFIG".to_owned()),
+            dynamic_loading: DynamicLoading::Never,
             ..Default::default()
         },
     ).unwrap();

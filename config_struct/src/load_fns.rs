@@ -26,10 +26,6 @@ r#"impl {struct_name} {{
         let result: Self = {load_expression}?;
         Ok(Cow::Owned(result))
     }}
-
-    pub fn reload(&mut self) {{
-        ::std::mem::replace(self, Self::load().into_owned());
-    }}
 }}"#, struct_name=struct_name, filepath=filepath.display(), load_expression=load_expression)
 }
 
@@ -45,12 +41,8 @@ r#"impl {struct_name} {{
     }}
 
     #[inline(always)]
-    pub fn load_from(filepath: &::std::path::Path) -> Result<Cow<'static, Self>, Box<::std::error::Error>> {{
+    pub fn load_from(_: &::std::path::Path) -> Result<Cow<'static, Self>, Box<::std::error::Error>> {{
         Ok(Cow::Borrowed(&{const_name}))
-    }}
-
-    #[inline(always)]
-    pub fn reload(&mut self) {{
     }}
 }}"#, struct_name=struct_name, const_name=const_name)
 }
