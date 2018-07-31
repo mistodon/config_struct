@@ -12,6 +12,7 @@ pub struct Options {
     pub create_dirs: bool,
     pub default_float_size: FloatSize,
     pub default_int_size: IntSize,
+    pub max_array_size: usize,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -69,6 +70,7 @@ impl Default for Options {
             create_dirs: true,
             default_float_size: FloatSize::F64,
             default_int_size: IntSize::I64,
+            max_array_size: 0,
         }
     }
 }

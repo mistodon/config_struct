@@ -41,7 +41,7 @@ use value::GenericStruct;
 
 pub use error::{Error, GenerationError, OptionsError};
 pub use format::Format;
-pub use options::{DynamicLoading, Options, IntSize, FloatSize};
+pub use options::{DynamicLoading, FloatSize, IntSize, Options};
 
 pub fn generate_config<P: AsRef<Path>>(filepath: P, options: &Options) -> Result<String, Error> {
     let format = Format::from_filename(filepath.as_ref())?;
@@ -119,7 +119,7 @@ use std::borrow::Cow;\n\n";
             "pub const {}: {} = {};\n",
             const_name,
             struct_name,
-            generation::struct_value_string(&config, 0)
+            generation::struct_value_string(&config, 0, options.max_array_size)
         ));
     }
 
