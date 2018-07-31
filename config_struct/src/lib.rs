@@ -155,6 +155,7 @@ pub fn create_config<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
     options: &Options,
 ) -> Result<(), Error> {
     let output = generate_config(filepath, options)?;
+    ensure_destination(destination.as_ref(), options)?;
     std::fs::write(destination, output)?;
 
     Ok(())
@@ -167,6 +168,7 @@ pub fn create_config_with_format<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
     options: &Options,
 ) -> Result<(), Error> {
     let output = generate_config_with_format(format, filepath, options)?;
+    ensure_destination(destination.as_ref(), options)?;
     std::fs::write(destination, output)?;
 
     Ok(())
@@ -179,7 +181,18 @@ pub fn create_config_from_source<S: AsRef<str>, P: AsRef<Path>>(
     options: &Options,
 ) -> Result<(), Error> {
     let output = generate_config_from_source(format, source, options)?;
+    ensure_destination(destination.as_ref(), options)?;
     std::fs::write(destination, output)?;
+
+    Ok(())
+}
+
+fn ensure_destination(path: &Path, options: &Options) -> Result<(), Error> {
+    if options.create_dirs {
+        if let Some(dir) = path.parent() {
+            std::fs::create_dir_all(dir)?;
+        }
+    }
 
     Ok(())
 }
