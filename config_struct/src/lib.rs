@@ -41,7 +41,7 @@ use value::GenericStruct;
 
 pub use error::{Error, GenerationError, OptionsError};
 pub use format::Format;
-pub use options::{DynamicLoading, Options};
+pub use options::{DynamicLoading, Options, IntSize, FloatSize};
 
 pub fn generate_config<P: AsRef<Path>>(filepath: P, options: &Options) -> Result<String, Error> {
     let format = Format::from_filename(filepath.as_ref())?;
