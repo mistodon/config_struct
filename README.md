@@ -24,6 +24,8 @@ By default, `config_struct` is markup-language-agnostic, so include the relevant
 3.  `toml-parsing`
 4.  `yaml-parsing`
 
+### Build-time
+
 Now in your `build.rs` file, add code like the following:
 
 ```rust
@@ -59,6 +61,16 @@ pub const CONFIG: Config = Config {
 ```
 
 Strings and arrays are represented by `Cow` types, which allows the entire Config struct to be either heap allocated at runtime, or a compile time constant, as shown above.
+
+### Runtime
+
+There are a few different ways to access the config at runtime.
+
+1.  Call the generated load function, e.g. `let config = Config::load();`
+2.  Access the `CONFIG` const directly, e.g. `let x = CONFIG.name;`
+3.  Deserialize the config file manually, e.g. `let config: Config = toml::from_str(file_contents)?`
+
+The first method is recommended, as it will load the const value in release mode, and load from the filesystem in debug mode. This gives you flexibility during development and performance when released.
 
 **Note:** By default, config structs derive `Serialize` and
 `Deserialize`. This will only work in your application if you include the
