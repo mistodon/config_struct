@@ -4,9 +4,8 @@ use value::{GenericStruct, GenericValue};
 
 pub fn valid_identifier(name: &str) -> bool {
     let good_start = name.starts_with(|c: char| c == '_' || (c.is_ascii() && c.is_alphabetic()));
-    let good_end = !name.contains(|c: char| {
-        !(c == '_' || c.is_digit(10) || (c.is_ascii() && c.is_alphabetic()))
-    });
+    let good_end = !name
+        .contains(|c: char| !(c == '_' || c.is_digit(10) || (c.is_ascii() && c.is_alphabetic())));
 
     good_start && good_end && name != "_"
 }
