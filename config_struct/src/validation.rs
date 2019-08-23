@@ -1,6 +1,8 @@
-use error::GenerationError;
-use generation::type_string; // TODO: I wish we weren't comparing types by string.
-use value::{GenericStruct, GenericValue};
+use crate::{
+    error::GenerationError,
+    generation::type_string, // TODO: I wish we weren't comparing types by string,
+    value::{GenericStruct, GenericValue},
+};
 
 pub fn valid_identifier(name: &str) -> bool {
     let good_start = name.starts_with(|c: char| c == '_' || (c.is_ascii() && c.is_alphabetic()));
@@ -90,22 +92,20 @@ mod tests {
         assert!(validate_array_test(&[GenericValue::Unit]).is_ok());
         assert!(validate_array_test(&[GenericValue::Unit, GenericValue::Unit]).is_ok());
         assert!(validate_array_test(&[GenericValue::I64(0), GenericValue::I64(1)]).is_ok());
-        assert!(
-            validate_array_test(&[
-                GenericValue::Array(vec![GenericValue::Unit]),
-                GenericValue::Array(vec![GenericValue::Unit]),
-            ]).is_ok()
-        );
+        assert!(validate_array_test(&[
+            GenericValue::Array(vec![GenericValue::Unit]),
+            GenericValue::Array(vec![GenericValue::Unit]),
+        ])
+        .is_ok());
     }
 
     #[test]
     fn heterogenous_arrays() {
         assert!(validate_array_test(&[GenericValue::Unit, GenericValue::I64(0)]).is_err());
-        assert!(
-            validate_array_test(&[
-                GenericValue::Array(vec![GenericValue::Unit]),
-                GenericValue::Array(vec![GenericValue::I64(0)]),
-            ]).is_err()
-        );
+        assert!(validate_array_test(&[
+            GenericValue::Array(vec![GenericValue::Unit]),
+            GenericValue::Array(vec![GenericValue::I64(0)]),
+        ])
+        .is_err());
     }
 }

@@ -1,11 +1,13 @@
 use toml::{self, Value};
 
-use error::GenerationError;
-use options::Options;
-use parsing;
-use value::{GenericStruct, GenericValue};
+use crate::{
+    error::GenerationError,
+    options::StructOptions,
+    parsing,
+    value::{GenericStruct, GenericValue},
+};
 
-pub fn parse_toml(toml: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
+pub fn parse_toml(toml: &str, options: &StructOptions) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let toml_struct: ParsedFields<Value> = toml::from_str(toml)
@@ -20,7 +22,7 @@ fn toml_to_raw_value(
     super_struct: &str,
     super_key: &str,
     value: Value,
-    options: &Options,
+    options: &StructOptions,
 ) -> GenericValue {
     match value {
         Value::Boolean(value) => GenericValue::Bool(value),

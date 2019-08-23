@@ -3,32 +3,4 @@ cache: cargo
 matrix:
   include:
     - rust: stable
-      before_script:
-        - rustup component add rustfmt-preview
-      script:
-        - |
-          pushd config_struct &&
-          cargo test --all-features &&
-          cargo fmt -- --check &&
-          popd
-
-        - |
-          pushd test_config_struct &&
-          cargo test &&
-          cargo test --release &&
-          cargo fmt -- --check &&
-          popd
-
-    - rust: nightly
-      before_script:
-        - rustup component add clippy-preview
-      script:
-        - |
-          pushd config_struct &&
-          cargo clippy --all-features -- -D clippy &&
-          popd
-
-        - |
-          pushd test_config_struct &&
-          cargo clippy --all-features -- -D clippy &&
-          popd
+      script: ./alltests

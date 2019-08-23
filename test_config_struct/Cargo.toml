@@ -2,6 +2,7 @@
 name = "test_config_struct"
 version = "0.1.0"
 authors = ["Claire Harris <wishing.engine@gmail.com>"]
+edition = "2018"
 
 [build-dependencies.config_struct]
 path = "../config_struct"
@@ -9,8 +10,10 @@ features = ["json-parsing", "ron-parsing", "toml-parsing", "yaml-parsing"]
 
 [dev-dependencies]
 ron = "~0.3.0"
-serde = "~1.0.70"
-serde_derive = "~1.0.70"
 serde_json = "~1.0.24"
 serde_yaml = "~0.7.5"
 toml = "~0.4.6"
+
+[dev-dependencies.serde]
+version = "~1.0.70"
+features = ["derive"]

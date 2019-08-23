@@ -1,5 +1,7 @@
 use std::io::Error as IOError;
 
+use failure::Fail;
+
 /// An error type for errors while generating config struct modules.
 ///
 /// Errors can either occur during IO (when reading or creating files) or during
@@ -19,7 +21,8 @@ pub enum GenerationError {
     /// Occurs when the config format can't be determined from the
     /// filename extension of the input file.
     #[fail(
-        display = "Unknown input format: `{}`. (Maybe you need to enable the right feature?)", _0
+        display = "Unknown input format: `{}`. (Maybe you need to enable the right feature?)",
+        _0
     )]
     UnknownInputFormat(String),
 
@@ -53,11 +56,11 @@ pub enum GenerationError {
 
     /// Occurs when invalid options were provided.
     #[fail(display = "Invalid options error: {}", _0)]
-    Options(#[cause] OptionsError),
+    StructOptions(#[cause] OptionsError),
 }
 
-/// An error type for when an [`Options`](struct.Options.html) value failed
-/// validation.
+/// An error type for when a [`StructOptions`](struct.StructOptions.html) value
+/// failed validation.
 #[derive(Debug, Fail)]
 pub enum OptionsError {
     /// Occurs when the provided `struct_name` is not a valid Rust identifier.
@@ -83,6 +86,6 @@ impl From<IOError> for Error {
 
 impl From<OptionsError> for GenerationError {
     fn from(error: OptionsError) -> Self {
-        GenerationError::Options(error)
+        GenerationError::StructOptions(error)
     }
 }
