@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use error::*;
+use crate::error::*;
 
 /// Represents an input markup format for a config file.
 ///

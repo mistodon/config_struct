@@ -10,12 +10,14 @@
 //!     some reason.
 use ron::{self, value::Value};
 
-use error::GenerationError;
-use options::Options;
-use parsing;
-use value::{GenericStruct, GenericValue};
+use crate::{
+    error::GenerationError,
+    options::StructOptions,
+    parsing,
+    value::{GenericStruct, GenericValue},
+};
 
-pub fn parse_ron(ron: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
+pub fn parse_ron(ron: &str, options: &StructOptions) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let ron_struct = {
@@ -48,12 +50,12 @@ pub fn parse_ron(ron: &str, options: &Options) -> Result<GenericStruct, Generati
     Ok(generic_struct)
 }
 
-#[allow(float_cmp)]
+#[allow(clippy::float_cmp)]
 fn ron_to_raw_value(
     super_struct: &str,
     super_key: &str,
     value: Value,
-    options: &Options,
+    options: &StructOptions,
 ) -> GenericValue {
     match value {
         Value::Unit => GenericValue::Unit,
@@ -110,12 +112,12 @@ mod tests {
     #[test]
     fn test_non_string_keys() {
         let ron_code = r#"(100: "One hundred")"#;
-        assert!(parse_ron(ron_code, &Options::default()).is_err());
+        assert!(parse_ron(ron_code, &StructOptions::default()).is_err());
     }
 
     #[test]
     fn test_non_struct_root_object() {
         let ron_code = r#"["key", "value"]"#;
-        assert!(parse_ron(ron_code, &Options::default()).is_err());
+        assert!(parse_ron(ron_code, &StructOptions::default()).is_err());
     }
 }

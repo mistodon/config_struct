@@ -1,19 +1,9 @@
 #![cfg(test)]
 
-#[macro_use]
-extern crate serde_derive;
-extern crate ron;
-extern crate serde_json;
-extern crate serde_yaml;
-extern crate toml;
-
 mod config;
 
 mod json_tests {
-    use serde_json;
-    use std;
-
-    use config::json::{Config, CONFIG};
+    use crate::config::json::{Config, CONFIG};
 
     #[test]
     fn test_declarations() {
@@ -68,7 +58,7 @@ mod json_tests {
 mod ron_tests {
     use ron;
 
-    use config::ron::{RonConfig, RONCONFIG};
+    use crate::config::ron::{RonConfig, RONCONFIG};
 
     #[test]
     fn test_declarations() {
@@ -123,7 +113,7 @@ mod ron_tests {
 mod toml_tests {
     use toml;
 
-    use config::toml::{TomlConfig, TOMLCONFIG};
+    use crate::config::toml::{TomlConfig, TOMLCONFIG};
 
     #[test]
     fn test_declarations() {
@@ -200,7 +190,7 @@ mod yaml_tests {
     use serde_yaml;
     use std;
 
-    use config::yaml::{YamlConfig, YAML_CONFIG};
+    use crate::config::yaml::{YamlConfig, YAML_CONFIG};
 
     #[test]
     fn test_declarations() {

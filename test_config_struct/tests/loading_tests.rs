@@ -1,9 +1,3 @@
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
-
-extern crate serde_json;
-
 #[path = "config/dynamic.rs"]
 mod dynamic;
 
@@ -18,9 +12,10 @@ struct Cleanup;
 impl Cleanup {
     fn new() -> Self {
         std::fs::copy(
-            "tests/example_config.json",
-            "tests/example_config.json.backup",
-        ).unwrap();
+            "tests/temp/example_config.json",
+            "tests/temp/example_config.json.backup",
+        )
+        .unwrap();
         Cleanup
     }
 }
@@ -28,9 +23,10 @@ impl Cleanup {
 impl Drop for Cleanup {
     fn drop(&mut self) {
         std::fs::rename(
-            "tests/example_config.json.backup",
-            "tests/example_config.json",
-        ).unwrap();
+            "tests/temp/example_config.json.backup",
+            "tests/temp/example_config.json",
+        )
+        .unwrap();
     }
 }
 
@@ -59,9 +55,10 @@ fn run_loading_tests(dependent_renamed: &str, dependent_alternate: &str) {
     assert_eq!(static_conf.name, "Example Config");
 
     std::fs::write(
-        "tests/example_config.json",
+        "tests/temp/example_config.json",
         br#"{ "name": "Renamed Config" }"#,
-    ).unwrap();
+    )
+    .unwrap();
 
     // Test reloading with changes
     let dynamic_conf = dynamic::DynamicConfig::load();
@@ -74,11 +71,12 @@ fn run_loading_tests(dependent_renamed: &str, dependent_alternate: &str) {
 
     // Test loading from a file
     let dynamic_conf =
-        dynamic::DynamicConfig::load_from("tests/alternate_config.json".as_ref()).unwrap();
+        dynamic::DynamicConfig::load_from("tests/temp/alternate_config.json".as_ref()).unwrap();
     let dependent_conf =
-        dependent::DependentConfig::load_from("tests/alternate_config.json".as_ref()).unwrap();
+        dependent::DependentConfig::load_from("tests/temp/alternate_config.json".as_ref()).unwrap();
     let static_conf =
-        static_config::StaticConfig::load_from("tests/alternate_config.json".as_ref()).unwrap();
+        static_config::StaticConfig::load_from("tests/temp/alternate_config.json".as_ref())
+            .unwrap();
 
     assert_eq!(dynamic_conf.name, "Alternate Config");
     assert_eq!(dependent_conf.name, dependent_alternate);

@@ -1,6 +1,6 @@
 [package]
 name = "config_struct"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["***Realname*** ***Lastname*** <***redacted.email@redacted.nope***>"]
 description = "Create structs from config files at build time."
 homepage = "https://github.com/mistodon/config_struct"
@@ -9,6 +9,7 @@ readme = "README.md"
 keywords = ["build", "config", "parsing", "generator"]
 categories = ["config", "parsing"]
 license = "MIT"
+edition = "2018"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -22,7 +23,6 @@ yaml-parsing = ["serde_yaml"]
 
 [dependencies]
 failure = "~0.1.1"
-
 ron = { version = "~0.3.0", optional = true }
 serde_json = { version = "~1.0.24", optional = true }
 serde_yaml = { version = "~0.7.5", optional = true }

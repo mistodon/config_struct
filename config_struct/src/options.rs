@@ -1,9 +1,41 @@
-use error::OptionsError;
-use validation;
+use crate::{error::OptionsError, validation};
 
-/// Options for configuring the generation of a config struct.
+/// Options for serde support.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum SerdeSupport {
+    No,
+    Yes,
+    Mixed { serialize: bool, deserialize: bool },
+}
+
+impl SerdeSupport {
+    pub(crate) fn should_derive_ser_de(self) -> Option<(bool, bool)> {
+        match self {
+            Self::No => None,
+            Self::Yes => Some((true, true)),
+            Self::Mixed {
+                serialize,
+                deserialize,
+            } => {
+                if !(serialize || deserialize) {
+                    None
+                } else {
+                    Some((serialize, deserialize))
+                }
+            }
+        }
+    }
+}
+
+impl Default for SerdeSupport {
+    fn default() -> Self {
+        Self::No
+    }
+}
+
+/// Options for configuring the generation of a struct.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Options {
+pub struct StructOptions {
     /// The name of the resulting struct. Defaults to `"Config"`.
     pub struct_name: String,
 
@@ -22,6 +54,16 @@ pub struct Options {
     /// the `serde` and `serde_derive` crates in the crate that uses the generated
     /// config module.
     pub derived_traits: Vec<String>,
+
+    /// Shorthand for generating the Serialize and Deserialize traits.
+    pub serde_support: SerdeSupport,
+
+    /// The recommended way to derive Serialize and Deserialize is via the `serde`
+    /// crate's `derive` feature: https://serde.rs/derive.html
+    ///
+    /// If you instead need to use the old method of including the `serde_derive`
+    /// crate, set this flag to `true`.
+    pub use_serde_derive_crate: bool,
 
     /// Whether or not to generate helper functions to load the struct at runtime.
     /// Defaults to `true`.
@@ -93,7 +135,7 @@ pub enum IntSize {
     ISize,
 }
 
-impl Options {
+impl StructOptions {
     pub fn validate(&self) -> Result<(), OptionsError> {
         if !validation::valid_identifier(&self.struct_name) {
             return Err(OptionsError::InvalidStructName(self.struct_name.clone()));
@@ -109,20 +151,20 @@ impl Options {
     }
 }
 
-impl Default for Options {
+impl Default for StructOptions {
     /// ```rust
     /// use config_struct::*;
     ///
-    /// Options {
+    /// let default_options = StructOptions {
     ///     struct_name: "Config".to_owned(),
     ///     const_name: None,
     ///     generate_const: true,
     ///     derived_traits: vec![
     ///         "Debug".to_owned(),
     ///         "Clone".to_owned(),
-    ///         "Serialize".to_owned(),
-    ///         "Deserialize".to_owned(),
     ///     ],
+    ///     serde_support: SerdeSupport::No,
+    ///     use_serde_derive_crate: false,
     ///     generate_load_fns: true,
     ///     dynamic_loading: DynamicLoading::DebugOnly,
     ///     create_dirs: true,
@@ -130,18 +172,16 @@ impl Default for Options {
     ///     default_int_size: IntSize::I64,
     ///     max_array_size: 0,
     /// };
+    /// assert_eq!(default_options, StructOptions::default());
     /// ```
     fn default() -> Self {
-        Options {
+        StructOptions {
             struct_name: "Config".to_owned(),
             const_name: None,
             generate_const: true,
-            derived_traits: vec![
-                "Debug".to_owned(),
-                "Clone".to_owned(),
-                "Serialize".to_owned(),
-                "Deserialize".to_owned(),
-            ],
+            derived_traits: vec!["Debug".to_owned(), "Clone".to_owned()],
+            serde_support: SerdeSupport::default(),
+            use_serde_derive_crate: false,
             generate_load_fns: true,
             dynamic_loading: DynamicLoading::DebugOnly,
             create_dirs: true,

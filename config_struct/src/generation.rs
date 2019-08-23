@@ -1,7 +1,9 @@
-use options::Options;
-use value::{GenericStruct, GenericValue};
+use crate::{
+    options::StructOptions,
+    value::{GenericStruct, GenericValue},
+};
 
-pub fn generate_structs(struct_value: &GenericStruct, options: &Options) -> String {
+pub fn generate_structs(struct_value: &GenericStruct, options: &StructOptions) -> String {
     let mut buffer = String::new();
     generate_struct_declarations(&mut buffer, struct_value, options);
     buffer
@@ -10,7 +12,7 @@ pub fn generate_structs(struct_value: &GenericStruct, options: &Options) -> Stri
 fn generate_struct_declarations(
     output: &mut String,
     struct_value: &GenericStruct,
-    options: &Options,
+    options: &StructOptions,
 ) {
     let field_strings = struct_value
         .fields
@@ -25,10 +27,26 @@ fn generate_struct_declarations(
         .collect::<Vec<String>>();
 
     let derive_string = {
-        if options.derived_traits.is_empty() {
+        let mut derived_traits = options.derived_traits.clone();
+        if let Some((ser, de)) = options.serde_support.should_derive_ser_de() {
+            let prefix = if options.use_serde_derive_crate {
+                "serde_derive::"
+            } else {
+                "serde::"
+            };
+
+            if ser {
+                derived_traits.push(format!("{}Serialize", prefix));
+            }
+            if de {
+                derived_traits.push(format!("{}Deserialize", prefix));
+            }
+        }
+
+        if derived_traits.is_empty() {
             "".to_owned()
         } else {
-            format!("#[derive({})]\n", options.derived_traits.join(", "))
+            format!("#[derive({})]\n", derived_traits.join(", "))
         }
     };
 

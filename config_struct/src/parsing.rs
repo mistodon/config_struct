@@ -1,17 +1,19 @@
 use std::collections::BTreeMap;
 
-use options::{FloatSize, IntSize, Options};
-use value::{GenericStruct, GenericValue};
+use crate::{
+    options::{FloatSize, IntSize, StructOptions},
+    value::{GenericStruct, GenericValue},
+};
 
 pub type ParsedFields<T> = BTreeMap<String, T>;
 
 pub fn parsed_to_generic_struct<T, F>(
     parsed_config: ParsedFields<T>,
-    options: &Options,
+    options: &StructOptions,
     convert_fn: F,
 ) -> GenericStruct
 where
-    F: Fn(&str, &str, T, &Options) -> GenericValue,
+    F: Fn(&str, &str, T, &StructOptions) -> GenericValue,
 {
     let struct_name = "Config".to_owned();
 

@@ -1,50 +1,44 @@
-extern crate config_struct;
-extern crate ron;
-extern crate serde_json;
-extern crate serde_yaml;
-extern crate toml;
-
 #[test]
 fn test_number_sizes() {
-    use config_struct::{FloatSize, Format, IntSize, Options};
+    use config_struct::{FloatSize, Format, IntSize, StructOptions};
 
-    let basic_options = Options {
+    let basic_options = StructOptions {
         generate_load_fns: false,
         generate_const: false,
         ..Default::default()
     };
 
-    let f32_opts = Options {
+    let f32_opts = StructOptions {
         default_float_size: FloatSize::F32,
         ..basic_options.clone()
     };
 
-    let f64_opts = Options {
+    let f64_opts = StructOptions {
         default_float_size: FloatSize::F64,
         ..basic_options.clone()
     };
 
-    let i8_opts = Options {
+    let i8_opts = StructOptions {
         default_int_size: IntSize::I8,
         ..basic_options.clone()
     };
 
-    let i16_opts = Options {
+    let i16_opts = StructOptions {
         default_int_size: IntSize::I16,
         ..basic_options.clone()
     };
 
-    let i32_opts = Options {
+    let i32_opts = StructOptions {
         default_int_size: IntSize::I32,
         ..basic_options.clone()
     };
 
-    let i64_opts = Options {
+    let i64_opts = StructOptions {
         default_int_size: IntSize::I64,
         ..basic_options.clone()
     };
 
-    let isize_opts = Options {
+    let isize_opts = StructOptions {
         default_int_size: IntSize::ISize,
         ..basic_options.clone()
     };

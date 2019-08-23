@@ -1,11 +1,13 @@
 use serde_yaml::{self, Value};
 
-use error::GenerationError;
-use options::Options;
-use parsing;
-use value::{GenericStruct, GenericValue};
+use crate::{
+    error::GenerationError,
+    options::StructOptions,
+    parsing,
+    value::{GenericStruct, GenericValue},
+};
 
-pub fn parse_yaml(yaml: &str, options: &Options) -> Result<GenericStruct, GenerationError> {
+pub fn parse_yaml(yaml: &str, options: &StructOptions) -> Result<GenericStruct, GenerationError> {
     use parsing::ParsedFields;
 
     let yaml_struct: ParsedFields<Value> = serde_yaml::from_str(yaml)
@@ -20,7 +22,7 @@ fn yaml_to_raw_value(
     super_struct: &str,
     super_key: &str,
     value: Value,
-    options: &Options,
+    options: &StructOptions,
 ) -> GenericValue {
     match value {
         Value::Null => GenericValue::Option(None),
