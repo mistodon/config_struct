@@ -8,13 +8,13 @@ Development
     - [ ] With formatting
     - [ ] With clippy (not nightly)
     - [ ] Make it call ./alltests script to avoid duplication?
-- [ ] Reintroduce write_only_if_changed option
+- [x] Reintroduce write_only_if_changed option
     - This is to prevent recompilation when config.rs hasn't actually changed. Can't do this with a .gitignore alone.
-- [ ] Remove need for serde/load_fns in default features/options
+- [x] Remove need for serde/load_fns in default features/options
     - This is so the default StructOptions compile without any other crates present.
 - [/] Have serde_support as an option, so you don't need to specify it in derived traits
     - [ ] And test
-- [ ] Try to auto-detect serde w/ derive feature, vs serde_derive?
+- [ ] Once-over the docs
 
 ## Need to:
 1.  `StructOptions.force_numbers_to_float` (unless it's not required?)
