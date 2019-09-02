@@ -33,6 +33,26 @@ impl Default for SerdeSupport {
     }
 }
 
+/// When to perform dynamic loading from the config file itself.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DynamicLoading {
+    /// Always load the config from file.
+    Always,
+
+    /// Load from file in debug mode, but use the statically-included const in
+    /// release mode.
+    DebugOnly,
+
+    /// Never load dynamically. Always use the statically-included const.
+    Never,
+}
+
+impl Default for DynamicLoading {
+    fn default() -> Self {
+        Self::DebugOnly
+    }
+}
+
 /// Options for configuring the generation of a struct.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StructOptions {
@@ -56,6 +76,7 @@ pub struct StructOptions {
     pub derived_traits: Vec<String>,
 
     /// Shorthand for generating the Serialize and Deserialize traits.
+    /// Defaults to `No`.
     pub serde_support: SerdeSupport,
 
     /// The recommended way to derive Serialize and Deserialize is via the `serde`
@@ -85,6 +106,13 @@ pub struct StructOptions {
     /// they don't exist. Defaults to `true`.
     pub create_dirs: bool,
 
+    /// Whether to check if the destination file would be changed before writing
+    /// output. This is to avoid unnecessary writes from marking the destination
+    /// file as changed (which could, for example, trigger a process which is
+    /// watching for changes). This option only works with the `create_*` functions.
+    /// Defaults to `true`.
+    pub write_only_if_changed: bool,
+
     /// The type of floating point values in the config, where the format does not
     /// make it explicit.
     ///
@@ -102,20 +130,6 @@ pub struct StructOptions {
     ///
     /// Defaults to `0`.
     pub max_array_size: usize,
-}
-
-/// When to perform dynamic loading from the config file itself.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum DynamicLoading {
-    /// Always load the config from file.
-    Always,
-
-    /// Load from file in debug mode, but use the statically-included const in
-    /// release mode.
-    DebugOnly,
-
-    /// Never load dynamically. Always use the statically-included const.
-    Never,
 }
 
 /// Represents a floating-point type.
@@ -168,6 +182,7 @@ impl Default for StructOptions {
     ///     generate_load_fns: true,
     ///     dynamic_loading: DynamicLoading::DebugOnly,
     ///     create_dirs: true,
+    ///     write_only_if_changed: true,
     ///     default_float_size: FloatSize::F64,
     ///     default_int_size: IntSize::I64,
     ///     max_array_size: 0,
@@ -185,6 +200,7 @@ impl Default for StructOptions {
             generate_load_fns: true,
             dynamic_loading: DynamicLoading::DebugOnly,
             create_dirs: true,
+            write_only_if_changed: true,
             default_float_size: FloatSize::F64,
             default_int_size: IntSize::I64,
             max_array_size: 0,

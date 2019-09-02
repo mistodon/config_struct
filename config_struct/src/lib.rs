@@ -291,7 +291,7 @@ pub fn create_config<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
 ) -> Result<(), Error> {
     let output = generate_config(filepath, options)?;
     ensure_destination(destination.as_ref(), options)?;
-    std::fs::write(destination, output)?;
+    write_destination(destination.as_ref(), output, options)?;
 
     Ok(())
 }
@@ -318,7 +318,7 @@ pub fn create_config_with_format<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
 ) -> Result<(), Error> {
     let output = generate_config_with_format(format, filepath, options)?;
     ensure_destination(destination.as_ref(), options)?;
-    std::fs::write(destination, output)?;
+    write_destination(destination.as_ref(), output, options)?;
 
     Ok(())
 }
@@ -345,7 +345,7 @@ pub fn create_config_from_source<S: AsRef<str>, P: AsRef<Path>>(
 ) -> Result<(), Error> {
     let output = generate_config_from_source(format, source, options)?;
     ensure_destination(destination.as_ref(), options)?;
-    std::fs::write(destination, output)?;
+    write_destination(destination.as_ref(), output, options)?;
 
     Ok(())
 }
@@ -358,4 +358,26 @@ fn ensure_destination(path: &Path, options: &StructOptions) -> Result<(), Error>
     }
 
     Ok(())
+}
+
+fn write_destination(
+    destination: &Path,
+    output: String,
+    options: &StructOptions,
+) -> Result<(), std::io::Error> {
+    let should_write = if options.write_only_if_changed {
+        let existing = std::fs::read_to_string(destination);
+        match existing {
+            Ok(existing) => existing != output,
+            Err(_) => true,
+        }
+    } else {
+        true
+    };
+
+    if should_write {
+        std::fs::write(destination, output)
+    } else {
+        Ok(())
+    }
 }
