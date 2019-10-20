@@ -3,17 +3,17 @@ Development
 
 ## Housekeeping
 
-- [ ] Update CI config
-    - [ ] Ensure it works, obviously
-    - [ ] With formatting
-    - [ ] With clippy (not nightly)
-    - [ ] Make it call ./alltests script to avoid duplication?
+- [x] Update CI config
+    - [x] Ensure it works, obviously
+    - [x] With formatting
+    - [x] With clippy (not nightly)
+    - [x] Make it call ./alltests script to avoid duplication?
 - [x] Reintroduce write_only_if_changed option
     - This is to prevent recompilation when config.rs hasn't actually changed. Can't do this with a .gitignore alone.
 - [x] Remove need for serde/load_fns in default features/options
     - This is so the default StructOptions compile without any other crates present.
-- [/] Have serde_support as an option, so you don't need to specify it in derived traits
-    - [ ] And test
+- [x] Have serde_support as an option, so you don't need to specify it in derived traits
+    - [x] And test
 - [ ] Once-over the docs
 
 ## Need to:
