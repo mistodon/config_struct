@@ -6,4 +6,4 @@ matrix:
       before_script:
         - rustup component add rustfmt
         - rustup component add clippy
-      script: ./alltests
+      script: ./run_tests
