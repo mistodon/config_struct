@@ -1,5 +1,5 @@
 fn main() {
-    use config_struct::{DynamicLoading, SerdeSupport, StructOptions};
+    use config_struct::{DynamicLoading, StructOptions};
 
     std::fs::create_dir_all("src/config").expect("Failed to create config dir.");
 
@@ -25,10 +25,7 @@ fn main() {
     config_struct::create_config(
         "config.json",
         "src/config/json.rs",
-        &StructOptions {
-            serde_support: SerdeSupport::Yes,
-            ..Default::default()
-        },
+        &StructOptions::serde_default(),
     )
     .unwrap();
 
@@ -37,8 +34,7 @@ fn main() {
         "src/config/ron.rs",
         &StructOptions {
             struct_name: "RonConfig".to_owned(),
-            serde_support: SerdeSupport::Yes,
-            ..Default::default()
+            ..StructOptions::serde_default()
         },
     )
     .unwrap();
@@ -48,8 +44,7 @@ fn main() {
         "src/config/toml.rs",
         &StructOptions {
             struct_name: "TomlConfig".to_owned(),
-            serde_support: SerdeSupport::Yes,
-            ..Default::default()
+            ..StructOptions::serde_default()
         },
     )
     .unwrap();
@@ -60,8 +55,7 @@ fn main() {
         &StructOptions {
             struct_name: "YamlConfig".to_owned(),
             const_name: Some("YAML_CONFIG".to_owned()),
-            serde_support: SerdeSupport::Yes,
-            ..Default::default()
+            ..StructOptions::serde_default()
         },
     )
     .unwrap();
@@ -73,8 +67,7 @@ fn main() {
             struct_name: "DynamicConfig".to_owned(),
             const_name: Some("DYNAMIC_CONFIG".to_owned()),
             dynamic_loading: DynamicLoading::Always,
-            serde_support: SerdeSupport::Yes,
-            ..Default::default()
+            ..StructOptions::serde_default()
         },
     )
     .unwrap();
@@ -86,8 +79,7 @@ fn main() {
             struct_name: "DependentConfig".to_owned(),
             const_name: Some("DEPENDENT_CONFIG".to_owned()),
             dynamic_loading: DynamicLoading::DebugOnly,
-            serde_support: SerdeSupport::Yes,
-            ..Default::default()
+            ..StructOptions::serde_default()
         },
     )
     .unwrap();
@@ -99,8 +91,7 @@ fn main() {
             struct_name: "StaticConfig".to_owned(),
             const_name: Some("STATIC_CONFIG".to_owned()),
             dynamic_loading: DynamicLoading::Never,
-            serde_support: SerdeSupport::Yes,
-            ..Default::default()
+            ..StructOptions::serde_default()
         },
     )
     .unwrap();
