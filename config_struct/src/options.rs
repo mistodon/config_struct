@@ -150,7 +150,7 @@ pub enum IntSize {
 }
 
 impl StructOptions {
-    pub fn validate(&self) -> Result<(), OptionsError> {
+    pub(crate) fn validate(&self) -> Result<(), OptionsError> {
         if !validation::valid_identifier(&self.struct_name) {
             return Err(OptionsError::InvalidStructName(self.struct_name.clone()));
         }
@@ -158,10 +158,33 @@ impl StructOptions {
         Ok(())
     }
 
-    pub fn real_const_name(&self) -> String {
+    pub(crate) fn real_const_name(&self) -> String {
         self.const_name
             .clone()
             .unwrap_or_else(|| self.struct_name.to_uppercase())
+    }
+
+    /// The default options plus serde support. This includes
+    /// `Serialize`/`Deserialize` traits, plus helpers functions
+    /// to load the config.
+    ///
+    /// ```rust
+    /// use config_struct::{StructOptions, SerdeSupport};
+    ///
+    /// let options = StructOptions::serde_default();
+    ///
+    /// assert_eq!(options, StructOptions {
+    ///     serde_support: SerdeSupport::Yes,
+    ///     generate_load_fns: true,
+    ///     .. StructOptions::default()
+    /// });
+    /// ```
+    pub fn serde_default() -> Self {
+        StructOptions {
+            serde_support: SerdeSupport::Yes,
+            generate_load_fns: true,
+            ..Self::default()
+        }
     }
 }
 
@@ -179,7 +202,7 @@ impl Default for StructOptions {
     ///     ],
     ///     serde_support: SerdeSupport::No,
     ///     use_serde_derive_crate: false,
-    ///     generate_load_fns: true,
+    ///     generate_load_fns: false,
     ///     dynamic_loading: DynamicLoading::DebugOnly,
     ///     create_dirs: true,
     ///     write_only_if_changed: true,
@@ -197,7 +220,7 @@ impl Default for StructOptions {
             derived_traits: vec!["Debug".to_owned(), "Clone".to_owned()],
             serde_support: SerdeSupport::default(),
             use_serde_derive_crate: false,
-            generate_load_fns: true,
+            generate_load_fns: false,
             dynamic_loading: DynamicLoading::DebugOnly,
             create_dirs: true,
             write_only_if_changed: true,
