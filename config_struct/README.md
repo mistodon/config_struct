@@ -3,7 +3,7 @@ config_struct
 
 This is a library for converting config files into matching source files at build time.
 
-[![Build Status](https://travis-ci.org/Mistodon/config_struct.svg?branch=master)](https://travis-ci.org/Mistodon/config_struct)
+[![Build Status](https://travis-ci.org/mistodon/config_struct.svg?branch=master)](https://travis-ci.org/mistodon/config_struct)
 [![Crates.io](https://img.shields.io/crates/v/config_struct.svg)](https://crates.io/crates/config_struct)
 [![Docs.rs](https://docs.rs/config_struct/badge.svg)](https://docs.rs/config_struct/0.3.0/config_struct/)
 
