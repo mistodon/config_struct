@@ -3,6 +3,7 @@ Development
 
 ## Housekeeping
 
+- [ ] Error when generate_load_fns without Deserialize
 - [x] Update CI config
     - [x] Ensure it works, obviously
     - [x] With formatting
