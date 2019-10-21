@@ -2,14 +2,17 @@
 name = "config_struct"
 version = "0.3.0"
 authors = ["***Realname*** ***Lastname*** <***redacted.email@redacted.nope***>"]
-description = "Create structs from config files at build time."
+edition = "2018"
+description = "Create struct definitions from config files at build time."
 homepage = "https://github.com/mistodon/config_struct"
 repository = "https://github.com/mistodon/config_struct"
 readme = "README.md"
 keywords = ["build", "config", "parsing", "generator"]
 categories = ["config", "parsing"]
-license = "MIT"
-edition = "2018"
+license = "CC0-1.0"
+
+[badges]
+travis-ci = { repository = "mistodon/config_struct", branch = "master" }
 
 [package.metadata.docs.rs]
 all-features = true
@@ -27,6 +30,3 @@ ron = { version = "~0.3.0", optional = true }
 serde_json = { version = "~1.0.24", optional = true }
 serde_yaml = { version = "~0.7.5", optional = true }
 toml = { version = "~0.4.6", optional = true }
-
-[badges]
-travis-ci = { repository = "Mistodon/config_struct" }
