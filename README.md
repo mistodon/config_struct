@@ -91,6 +91,8 @@ There are a few different ways to access the config at runtime.
     - Note that this either requires the `serde_support` option above, or requires you to manually add `serde::Serialize` and `serde::Deserialize` to the `derived_traits` option.
 
 The first method is recommended, as it will return the const value in release mode, but load from the filesystem in debug mode. This gives you flexibility during development and immutability in release.
+
+
 test_config_struct
 ===
 
