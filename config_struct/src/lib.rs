@@ -1,6 +1,6 @@
-//! This crate is a library for generating structs based on a config file at build
-//! time. It is intended for use in a `build.rs` file so should be included in your
-//! `[build-dependencies]`.
+//! This crate is a library for generating structs based on a config
+//! file at build time. It is intended for use in a `build.rs` file
+//! so should be included in your `[build-dependencies]`.
 //!
 //! ```toml
 //! [build-dependencies.config_struct]
@@ -8,22 +8,29 @@
 //! features = ["toml-parsing"]
 //! ```
 //!
-//! By default, `config_struct` is markup-language-agnostic, so include the relevant feature for whatever language your config file is written in. Choices are:
+//! By default, `config_struct` is markup-language-agnostic, so
+//! include the relevant feature for whatever language your config
+//! file is written in. Choices are:
 //!
 //! 1.  `json-parsing`
 //! 2.  `ron-parsing`
 //! 3.  `toml-parsing`
 //! 4.  `yaml-parsing`
 //!
-//! Only `toml-parsing` is included by default, so be sure to specify the features
-//! you need in your `Cargo.toml` file.
+//! Only `toml-parsing` is included by default, so be sure to specify
+//! the features you need in your `Cargo.toml` file.
 //!
 //! # Examples
 //!
 //! ```rust,no_run
 //! // build.rs
-//! fn main() {
-//!     config_struct::create_config("config.toml", "src/config.rs", &Default::default()).unwrap();
+//! use config_struct::{Error, StructOptions};
+//!
+//! fn main() -> Result<(), Error> {
+//!     config_struct::create_config(
+//!         "config.toml",
+//!         "src/config.rs",
+//!         &StructOptions::default())
 //! }
 //! ```
 //!
@@ -59,7 +66,6 @@
 //!     name: Cow::Borrowed("Application"),
 //!     version: 5,
 //! };
-//! // ...
 //! ```
 //!
 //! Strings and arrays are represented by `Cow` types, which allows

@@ -3,8 +3,14 @@ use crate::{error::OptionsError, validation};
 /// Options for serde support.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum SerdeSupport {
+    /// Do not derive any serde traits for the struct.
     No,
+
+    /// Derive `Serialize` and `Deserialize` for the struct.
     Yes,
+
+    /// Derive any combination of `Serialize` and `Deserialize`
+    /// for the struct.
     Mixed { serialize: bool, deserialize: bool },
 }
 
@@ -39,11 +45,12 @@ pub enum DynamicLoading {
     /// Always load the config from file.
     Always,
 
-    /// Load from file in debug mode, but use the statically-included const in
-    /// release mode.
+    /// Load from file in debug mode, but use the statically-included
+    /// const in release mode.
     DebugOnly,
 
-    /// Never load dynamically. Always use the statically-included const.
+    /// Never load dynamically. Always use the statically-included
+    /// const.
     Never,
 }
 
@@ -56,77 +63,96 @@ impl Default for DynamicLoading {
 /// Options for configuring the generation of a struct.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StructOptions {
-    /// The name of the resulting struct. Defaults to `"Config"`.
+    /// The name of the resulting struct.
+    ///
+    /// Defaults to `"Config"`.
     pub struct_name: String,
 
     /// The name of the resulting const, if generated.
+    ///
     /// Defaults to the value of `struct_name` in uppercase.
     pub const_name: Option<String>,
 
     /// Whether or not to generate a `const` instance of the struct.
+    ///
     /// Defaults to `true`.
     pub generate_const: bool,
 
-    /// A list of traits for the struct to derive. Defaults to `["Debug", "Clone",
-    /// "Serialize", "Deserialize"]`
+    /// A list of traits for the struct to derive.
     ///
-    /// **Note:** if you include `Serialize`/`Deserialize`, you must also include
-    /// the `serde` and `serde_derive` crates in the crate that uses the generated
-    /// config module.
+    /// Defaults to `["Debug", "Clone"]`
+    ///
+    /// (Note that the `serde_support` option below may add to this
+    /// list.)
     pub derived_traits: Vec<String>,
 
     /// Shorthand for generating the Serialize and Deserialize traits.
+    ///
     /// Defaults to `No`.
     pub serde_support: SerdeSupport,
 
-    /// The recommended way to derive Serialize and Deserialize is via the `serde`
-    /// crate's `derive` feature: https://serde.rs/derive.html
+    /// The recommended way to derive Serialize and Deserialize
+    /// is via the `serde` crate's
+    /// [`derive` feature](https://serde.rs/derive.html).
     ///
-    /// If you instead need to use the old method of including the `serde_derive`
-    /// crate, set this flag to `true`.
+    /// If you instead need to use the old method of including the
+    /// `serde_derive` crate, set this flag to `true`.
     pub use_serde_derive_crate: bool,
 
-    /// Whether or not to generate helper functions to load the struct at runtime.
+    /// Whether or not to generate helper functions to load the
+    /// struct at runtime.
+    ///
     /// Defaults to `true`.
     ///
-    /// **Note:** if you enable the generation of dynamic loading functions, you
-    /// must also include the relevant deserialization crate in the crate that uses
-    /// the generated config module.
+    /// **Note:** These load functions depend on the `Deserialize`
+    /// trait, as well as the relevant serde library for the config
+    /// format.
     ///
-    /// For example, if you generate a config based on "config.json", you must also
-    /// include `extern crate serde_json` in your crate. Likewise with `toml`,
-    /// `ron`, and `serde_yaml` for the other supported formats.
+    /// So for example, if you generate a struct from `config.json`
+    /// then you will have to enable `serde_support` for the
+    /// `Deserialize` trait, and you will also have to include the
+    /// `serde_json` library in your crate.
     pub generate_load_fns: bool,
 
-    /// Whether the load functions, if generated, are dynamic, and when.
+    /// Whether the load functions, if generated, are dynamic,
+    /// and when.
+    ///
     /// Defaults to `DebugOnly`.
     pub dynamic_loading: DynamicLoading,
 
-    /// Whether or not to create the parent directories of the output file, if
-    /// they don't exist. Defaults to `true`.
+    /// Whether or not to create the parent directories of the
+    /// output file, if they don't exist.
+    ///
+    /// Defaults to `true`.
     pub create_dirs: bool,
 
-    /// Whether to check if the destination file would be changed before writing
-    /// output. This is to avoid unnecessary writes from marking the destination
-    /// file as changed (which could, for example, trigger a process which is
-    /// watching for changes). This option only works with the `create_*` functions.
+    /// Whether to check if the destination file would be changed
+    /// before writing output.
+    ///
+    /// This is to avoid unnecessary writes from marking the
+    /// destination file as changed (which could, for example,
+    /// trigger a process which is watching for changes). This
+    /// option only works with the `create_*` functions.
+    ///
     /// Defaults to `true`.
     pub write_only_if_changed: bool,
 
-    /// The type of floating point values in the config, where the format does not
-    /// make it explicit.
+    /// The type of floating point values in the config, where the
+    /// format does not make it explicit.
     ///
     /// Defaults to `F64`.
     pub default_float_size: FloatSize,
 
-    /// The type of integer values in the config, where the format does not
-    /// make it explicit.
+    /// The type of integer values in the config, where the
+    /// format does not make it explicit.
     ///
     /// Defaults to `I64`.
     pub default_int_size: IntSize,
 
-    /// The maximum array size, over which array values in the config will be
-    /// represented as slices instead. If set to `0`, slices will always be used.
+    /// The maximum array size, over which array values in the
+    /// config will be represented as slices instead.
+    ///
+    /// If set to `0`, slices will always be used.
     ///
     /// Defaults to `0`.
     pub max_array_size: usize,
