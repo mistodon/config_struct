@@ -57,3 +57,11 @@ fn json_to_raw_value(
         }
     }
 }
+
+pub fn parse_map_keys(json: &str) -> Result<Vec<String>, GenerationError> {
+    use linear_map::LinearMap;
+
+    let map: LinearMap<String, Value> = serde_json::from_str(json).map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
+
+    Ok(map.into_iter().map(|pair| pair.0).collect())
+}

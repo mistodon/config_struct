@@ -60,6 +60,23 @@ impl Default for DynamicLoading {
     }
 }
 
+/// Represents a floating-point type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FloatSize {
+    F32,
+    F64,
+}
+
+/// Represents an integer type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IntSize {
+    I8,
+    I16,
+    I32,
+    I64,
+    ISize,
+}
+
 /// Options for configuring the generation of a struct.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StructOptions {
@@ -158,23 +175,6 @@ pub struct StructOptions {
     pub max_array_size: usize,
 }
 
-/// Represents a floating-point type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum FloatSize {
-    F32,
-    F64,
-}
-
-/// Represents an integer type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum IntSize {
-    I8,
-    I16,
-    I32,
-    I64,
-    ISize,
-}
-
 impl StructOptions {
     pub(crate) fn validate(&self) -> Result<(), OptionsError> {
         if !validation::valid_identifier(&self.struct_name) {
@@ -253,6 +253,147 @@ impl Default for StructOptions {
             default_float_size: FloatSize::F64,
             default_int_size: IntSize::I64,
             max_array_size: 0,
+        }
+    }
+}
+
+/// Options for configuring the generation of a struct.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EnumOptions {
+    /// The name of the resulting enum.
+    ///
+    /// Defaults to `"Key"`.
+    pub enum_name: String,
+
+    /// The name of the const slice containing all variants.
+    /// For example, if you specify `Some("ALL")`, then
+    /// `MyEnum::ALL` will contain all variants of the enum.
+    ///
+    /// Defaults to `Some("ALL")`.
+    pub all_variants_const: Option<String>,
+
+    /// A list of traits for the struct to derive.
+    ///
+    /// Defaults to `["Debug", "Clone", "Copy", "PartialEq",
+    /// "Eq", "PartialOrd", "Ord", "Hash"]`
+    ///
+    /// (Note that the `serde_support` option below may add
+    /// to this list.)
+    pub derived_traits: Vec<String>,
+
+    /// Whether to implement the `Default` trait for this enum.
+    /// If `true` then the default value will be the first
+    /// variant specified.
+    ///
+    /// Defaults to `true`.
+    pub first_variant_is_default: bool,
+
+    /// Shorthand for generating the Serialize and Deserialize
+    /// traits.
+    ///
+    /// Defaults to `No`.
+    pub serde_support: SerdeSupport,
+
+    /// The recommended way to derive Serialize and Deserialize
+    /// is via the `serde` crate's
+    /// [`derive` feature](https://serde.rs/derive.html).
+    ///
+    /// If you instead need to use the old method of including
+    /// the `serde_derive` crate, set this flag to `true`.
+    pub use_serde_derive_crate: bool,
+
+    /// Whether or not to create the parent directories of the
+    /// output file, if they don't exist.
+    ///
+    /// Defaults to `true`.
+    pub create_dirs: bool,
+
+    /// Whether to check if the destination file would be changed
+    /// before writing output.
+    ///
+    /// This is to avoid unnecessary writes from marking the
+    /// destination file as changed (which could, for example,
+    /// trigger a process which is watching for changes). This
+    /// option only works with the `create_*` functions.
+    ///
+    /// Defaults to `true`.
+    pub write_only_if_changed: bool,
+}
+
+impl EnumOptions {
+    pub(crate) fn validate(&self) -> Result<(), OptionsError> {
+        eprintln!("TODO: EnumOptions::validate");
+        Ok(())
+    }
+
+    /// The default options plus serde support. This includes
+    /// `Serialize`/`Deserialize` traits, plus helpers functions
+    /// to load the config.
+    ///
+    /// ```rust
+    /// use config_struct::{EnumOptions, SerdeSupport};
+    ///
+    /// let options = EnumOptions::serde_default();
+    ///
+    /// assert_eq!(options, EnumOptions {
+    ///     serde_support: SerdeSupport::Yes,
+    ///     .. EnumOptions::default()
+    /// });
+    /// ```
+    pub fn serde_default() -> Self {
+        EnumOptions {
+            serde_support: SerdeSupport::Yes,
+            ..Self::default()
+        }
+    }
+}
+
+    /// Defaults to `["Debug", "Clone", "Copy", "PartialEq",
+    /// "Eq", "PartialOrd", "Ord", "Hash"]`
+impl Default for EnumOptions {
+    /// ```rust
+    /// use config_struct::*;
+    ///
+    /// let default_options = EnumOptions {
+    ///     enum_name: "Key".to_owned(),
+    ///     all_variants_const: Some("ALL".to_owned()),
+    ///     derived_traits: vec![
+    ///         "Debug".to_owned(),
+    ///         "Clone".to_owned(),
+    ///         "Copy".to_owned(),
+    ///         "PartialEq".to_owned(),
+    ///         "Eq".to_owned(),
+    ///         "PartialOrd".to_owned(),
+    ///         "Ord".to_owned(),
+    ///         "Hash".to_owned(),
+    ///     ],
+    ///     first_variant_is_default: true,
+    ///     serde_support: SerdeSupport::No,
+    ///     use_serde_derive_crate: false,
+    ///     create_dirs: true,
+    ///     write_only_if_changed: true,
+    /// };
+    /// assert_eq!(default_options, EnumOptions::default());
+    /// ```
+    fn default() -> Self {
+        EnumOptions {
+            enum_name: "Key".to_owned(),
+            all_variants_const: Some("ALL".to_owned()),
+            derived_traits: vec![
+                "Debug".to_owned(),
+                "Clone".to_owned(),
+                "Copy".to_owned(),
+                "PartialEq".to_owned(),
+                "Eq".to_owned(),
+                "PartialOrd".to_owned(),
+                "Ord".to_owned(),
+                "Hash".to_owned(),
+            ],
+            first_variant_is_default: true,
+            serde_support: SerdeSupport::default(),
+            use_serde_derive_crate: false,
+            create_dirs: true,
+            write_only_if_changed: true,
         }
     }
 }

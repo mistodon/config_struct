@@ -121,3 +121,11 @@ mod tests {
         assert!(parse_ron(ron_code, &StructOptions::default()).is_err());
     }
 }
+
+pub fn parse_map_keys(ron: &str) -> Result<Vec<String>, GenerationError> {
+    use linear_map::LinearMap;
+
+    let map: LinearMap<String, Value> = ron::de::from_str(ron).map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
+
+    Ok(map.into_iter().map(|pair| pair.0).collect())
+}

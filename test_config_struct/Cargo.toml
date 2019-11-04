@@ -5,7 +5,7 @@ authors = ["***Realname*** ***Lastname*** <***redacted.email@redacted.nope***>"]
 edition = "2018"
 
 [build-dependencies.config_struct]
-path = "../config_struct"
+path = ".."
 features = ["json-parsing", "ron-parsing", "toml-parsing", "yaml-parsing"]
 
 [dev-dependencies]
