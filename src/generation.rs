@@ -1,5 +1,5 @@
 use crate::{
-    options::StructOptions,
+    options::{EnumOptions, StructOptions},
     value::{GenericStruct, GenericValue},
 };
 
@@ -7,6 +7,91 @@ pub fn generate_structs(struct_value: &GenericStruct, options: &StructOptions) -
     let mut buffer = String::new();
     generate_struct_declarations(&mut buffer, struct_value, options);
     buffer
+}
+
+pub fn generate_enum(variants: &[String], options: &EnumOptions) -> String {
+    use quote::{format_ident, quote};
+
+    let first_variant = variants.get(0).map(|name| format_ident!("{}", name));
+    let keys = variants.iter().map(|name| format_ident!("{}", name));
+    let const_keys = keys.clone();
+    let enum_name = format_ident!("{}", "Key");
+    let const_name = options
+        .all_variants_const
+        .as_ref()
+        .map(|name| format_ident!("{}", name));
+
+    // TODO: This is not robust to more complex derives
+    // (with package name for example)
+    let derive_tokens = {
+        let mut derives = options
+            .derived_traits
+            .iter()
+            .map(|name| {
+                let token = format_ident!("{}", name);
+                quote! { #token }
+            })
+            .collect::<Vec<_>>();
+
+        if let Some((ser, de)) = options.serde_support.should_derive_ser_de() {
+            let prefix = if options.use_serde_derive_crate {
+                format_ident!("serde_derive")
+            } else {
+                format_ident!("serde")
+            };
+
+            if ser {
+                derives.push(quote! { #prefix::Serialize });
+            }
+            if de {
+                derives.push(quote! { #prefix::Deserialize });
+            }
+        }
+
+        if derives.is_empty() {
+            quote! {}
+        } else {
+            quote! {
+                #[derive(#(#derives),*)]
+            }
+        }
+    };
+
+    let mut tokens = quote! {
+        #![cfg_attr(rustfmt, rustfmt_skip)]
+        #![allow(dead_code)]
+
+        #derive_tokens
+        pub enum #enum_name {
+            #(#keys,)*
+        }
+    };
+
+    if let Some(const_name) = const_name {
+        tokens = quote! {
+            #tokens
+
+            impl #enum_name {
+                pub const #const_name: &'static [#enum_name] = &[#(#enum_name::#const_keys,)*];
+            }
+        };
+    }
+
+    if let Some(first_variant) = first_variant {
+        if options.first_variant_is_default {
+            tokens = quote! {
+                #tokens
+
+                impl Default for #enum_name {
+                    fn default() -> Self {
+                        Self::#first_variant
+                    }
+                }
+            };
+        }
+    }
+
+    tokens.to_string()
 }
 
 fn generate_struct_declarations(

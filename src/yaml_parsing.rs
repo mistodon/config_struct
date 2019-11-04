@@ -58,3 +58,11 @@ fn yaml_to_raw_value(
         }
     }
 }
+
+pub fn parse_map_keys(yaml: &str) -> Result<Vec<String>, GenerationError> {
+    use linear_map::LinearMap;
+
+    let map: LinearMap<String, Value> = serde_yaml::from_str(yaml).map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
+
+    Ok(map.into_iter().map(|pair| pair.0).collect())
+}

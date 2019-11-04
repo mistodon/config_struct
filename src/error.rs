@@ -31,6 +31,11 @@ pub enum GenerationError {
     #[fail(display = "Invalid field name: `{}`.", _0)]
     InvalidFieldName(String),
 
+    /// Occurs when encountering a field in the config which is not a
+    /// valid name for an enum variant.
+    #[fail(display = "Invalid variant name: `{}`.", _0)]
+    InvalidVariantName(String),
+
     /// Occurs when an array in the config file contains multiple different types
     /// of data, which cannot be represented in a Rust struct.
     #[fail(

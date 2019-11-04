@@ -1,6 +1,6 @@
 [package]
 name = "config_struct"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Claire Harris <wishing.engine@gmail.com>"]
 edition = "2018"
 description = "Create struct definitions from config files at build time."
@@ -26,6 +26,8 @@ yaml-parsing = ["serde_yaml"]
 
 [dependencies]
 failure = "~0.1.1"
+linear-map = { version = "~1.2.0", features = ["serde_impl"] }
+quote = "~1.0.2"
 ron = { version = "~0.3.0", optional = true }
 serde_json = { version = "~1.0.24", optional = true }
 serde_yaml = { version = "~0.7.5", optional = true }

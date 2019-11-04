@@ -3,7 +3,7 @@ config_struct
 
 This is a library for converting config files into matching source files at build time.
 
-[![Build Status](https://travis-ci.org/Mistodon/config_struct.svg?branch=master)](https://travis-ci.org/Mistodon/config_struct)
+[![Build Status](https://travis-ci.org/mistodon/config_struct.svg?branch=master)](https://travis-ci.org/mistodon/config_struct)
 [![Crates.io](https://img.shields.io/crates/v/config_struct.svg)](https://crates.io/crates/config_struct)
 [![Docs.rs](https://docs.rs/config_struct/badge.svg)](https://docs.rs/config_struct/0.3.0/config_struct/)
 
@@ -93,9 +93,3 @@ There are a few different ways to access the config at runtime.
 The first method is recommended, as it will return the const value in release mode, but load from the filesystem in debug mode. This gives you flexibility during development and immutability in release.
 
 
-test_config_struct
-===
-
-A crate with a build script for testing `config_struct`. Run `cargo test` in this directory.
-
-There are some tests which only run in release mode, using `cargo test --release`. To ensure all tests are run, you can run `run_tests` in the root of the parent repo.

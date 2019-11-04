@@ -52,3 +52,11 @@ fn toml_to_raw_value(
         }
     }
 }
+
+pub fn parse_map_keys(toml: &str) -> Result<Vec<String>, GenerationError> {
+    use linear_map::LinearMap;
+
+    let map: LinearMap<String, Value> = toml::from_str(toml).map_err(|err| GenerationError::DeserializationFailed(err.to_string()))?;
+
+    Ok(map.into_iter().map(|pair| pair.0).collect())
+}
