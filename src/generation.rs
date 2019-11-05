@@ -15,7 +15,7 @@ pub fn generate_enum(variants: &[String], options: &EnumOptions) -> String {
     let first_variant = variants.get(0).map(|name| format_ident!("{}", name));
     let keys = variants.iter().map(|name| format_ident!("{}", name));
     let const_keys = keys.clone();
-    let enum_name = format_ident!("{}", "Key");
+    let enum_name = format_ident!("{}", options.enum_name);
     let const_name = options
         .all_variants_const
         .as_ref()
