@@ -29,7 +29,7 @@ r#"impl {struct_name} {{
         let result: Self = {load_expression}?;
         Ok(Cow::Owned(result))
     }}
-}}"#, struct_name=struct_name, filepath=filepath.display(), load_expression=load_expression)
+}}"#, struct_name=struct_name, filepath=filepath.to_str().unwrap().replace("\\", "/"), load_expression=load_expression)
 }
 
 pub fn static_load_impl(struct_name: &str, const_name: &str) -> String {
