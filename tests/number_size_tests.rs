@@ -69,8 +69,12 @@ fn test_number_sizes() {
 
     for &(ref options, expected_type) in float_tests {
         for &(format, code) in float_inputs {
+            let options = &StructOptions {
+                format: Some(format),
+                ..options.clone()
+            };
             let generated_code =
-                config_struct::generate_struct_from_source(format, code, options).unwrap();
+                config_struct::generate_struct_from_source(code, options).unwrap();
 
             assert!(
                 generated_code.contains(expected_type),
@@ -82,8 +86,12 @@ fn test_number_sizes() {
 
     for &(ref options, expected_type) in int_tests {
         for &(format, code) in int_inputs {
+            let options = &StructOptions {
+                format: Some(format),
+                ..options.clone()
+            };
             let generated_code =
-                config_struct::generate_struct_from_source(format, code, options).unwrap();
+                config_struct::generate_struct_from_source(code, options).unwrap();
 
             assert!(
                 generated_code.contains(expected_type),

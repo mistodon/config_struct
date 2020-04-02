@@ -12,8 +12,7 @@ use crate::{
 
 /// Generate Rust source code defining structs based on a config file.
 ///
-/// The format of
-/// the config file will be auto-detected from its extension.
+/// The format of the config file will be auto-detected from its extension.
 ///
 /// # Examples
 /// ```rust,no_run
@@ -27,71 +26,55 @@ pub fn generate_struct<P: AsRef<Path>>(
     filepath: P,
     options: &StructOptions,
 ) -> Result<String, Error> {
-    let format = Format::from_filename(filepath.as_ref())?;
-
-    generate_struct_with_format(format, filepath, options)
-}
-
-/// Generate Rust source code defining structs based on a config file
-/// of an explicit format.
-///
-/// # Examples
-/// ```rust,no_run
-/// # fn main() -> Result<(), config_struct::Error> {
-/// use config_struct::{Format, StructOptions};
-///
-/// let code = config_struct::generate_struct_with_format(
-///     Format::Toml,
-///     "config.toml",
-///     &StructOptions::default())?;
-///
-/// assert!(code.contains("pub struct Config"));
-/// # Ok(())
-/// # }
-/// ```
-pub fn generate_struct_with_format<P: AsRef<Path>>(
-    format: Format,
-    filepath: P,
-    options: &StructOptions,
-) -> Result<String, Error> {
     let path = filepath.as_ref();
     let source = std::fs::read_to_string(path)?;
-    let output = generate_struct_from_source_with_filepath(format, &source, options, Some(path))?;
+    let output = generate_struct_from_source_with_filepath(&source, options, Some(path))?;
 
     Ok(output)
 }
 
 /// Generate Rust source code defining structs from a config string
-/// in some specified format.
+/// in a format specified in the provided options.
 ///
 /// # Examples
 /// ```rust
+/// # fn main() -> Result<(), config_struct::Error> {
 /// use config_struct::{StructOptions, Format};
 ///
 /// let code = config_struct::generate_struct_from_source(
-///     Format::Toml,
 ///     "number = 100  # This is valid TOML.",
-///     &StructOptions::default()).unwrap();
+///     &StructOptions {
+///         format: Some(Format::Toml),
+///         ..Default::default()
+///     })?;
 ///
 /// assert!(code.contains("pub struct Config"));
 /// assert!(code.contains("pub number: i64"));
 /// assert!(code.contains("number: 100"));
+/// # Ok(())
+/// # }
 /// ```
 pub fn generate_struct_from_source<S: AsRef<str>>(
-    format: Format,
     source: S,
     options: &StructOptions,
 ) -> Result<String, GenerationError> {
-    generate_struct_from_source_with_filepath(format, source.as_ref(), options, None)
+    generate_struct_from_source_with_filepath(source.as_ref(), options, None)
 }
 
 fn generate_struct_from_source_with_filepath(
-    format: Format,
     source: &str,
     options: &StructOptions,
     filepath: Option<&Path>,
 ) -> Result<String, GenerationError> {
     options.validate()?;
+
+    let format = match options.format {
+        Some(format) => format,
+        None => match filepath {
+            Some(path) => Format::from_filename(path)?,
+            None => return Err(GenerationError::UnknownInputFormat("<none>".into())),
+        }
+    };
 
     let config = {
         let mut root_struct: GenericStruct = match format {
@@ -196,38 +179,8 @@ pub fn create_struct<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
     Ok(())
 }
 
-/// Generate a Rust module containing struct definitions based on a
-/// given config file with an explicitly specified format.
-///
-/// # Examples
-///
-/// ```rust,no_run
-/// # fn main() -> Result<(), config_struct::Error> {
-/// use config_struct::{Format, StructOptions};
-///
-/// config_struct::create_struct_with_format(
-///     Format::Toml,
-///     "config.toml",
-///     "src/config.rs",
-///     &StructOptions::default())?;
-/// # Ok(())
-/// # }
-/// ```
-pub fn create_struct_with_format<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
-    format: Format,
-    filepath: SrcPath,
-    destination: DstPath,
-    options: &StructOptions,
-) -> Result<(), Error> {
-    let output = generate_struct_with_format(format, filepath, options)?;
-    files::ensure_destination(destination.as_ref(), options.create_dirs)?;
-    files::write_destination(destination.as_ref(), output, options.write_only_if_changed)?;
-
-    Ok(())
-}
-
 /// Generate a Rust module containing struct definitions from a
-/// config string in some specified format.
+/// config string in a format specified by the provided options.
 ///
 /// # Examples
 ///
@@ -236,20 +189,21 @@ pub fn create_struct_with_format<SrcPath: AsRef<Path>, DstPath: AsRef<Path>>(
 /// use config_struct::{Format, StructOptions};
 ///
 /// config_struct::create_struct_from_source(
-///     Format::Toml,
 ///     "number = 100  # This is valid TOML.",
 ///     "src/config.rs",
-///     &StructOptions::default())?;
+///     &StructOptions {
+///         format: Some(Format::Toml),
+///         ..Default::default()
+///     })?;
 /// # Ok(())
 /// # }
 /// ```
 pub fn create_struct_from_source<S: AsRef<str>, P: AsRef<Path>>(
-    format: Format,
     source: S,
     destination: P,
     options: &StructOptions,
 ) -> Result<(), Error> {
-    let output = generate_struct_from_source(format, source, options)?;
+    let output = generate_struct_from_source(source, options)?;
     files::ensure_destination(destination.as_ref(), options.create_dirs)?;
     files::write_destination(destination.as_ref(), output, options.write_only_if_changed)?;
 
