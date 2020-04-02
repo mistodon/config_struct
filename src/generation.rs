@@ -15,11 +15,13 @@ pub fn generate_enum(variants: &[String], options: &EnumOptions) -> String {
     let first_variant = variants.get(0).map(|name| format_ident!("{}", name));
     let keys = variants.iter().map(|name| format_ident!("{}", name));
     let const_keys = keys.clone();
+    let string_keys = variants.iter();
     let enum_name = format_ident!("{}", options.enum_name);
     let const_name = options
         .all_variants_const
         .as_ref()
         .map(|name| format_ident!("{}", name));
+    let from_str_const_name = const_name.clone();
 
     // TODO: This is not robust to more complex derives
     // (with package name for example)
@@ -89,6 +91,42 @@ pub fn generate_enum(variants: &[String], options: &EnumOptions) -> String {
                 }
             };
         }
+    }
+
+    if options.impl_display {
+        tokens = quote! {
+            #tokens
+
+            impl std::fmt::Display for #enum_name {
+                fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                    write!(f, "{:?}", self)
+                }
+            }
+        };
+    }
+
+    if options.impl_from_str && options.all_variants_const.is_some() {
+        tokens = quote! {
+            #tokens
+
+            impl std::str::FromStr for #enum_name {
+                type Err = ();
+
+                fn from_str(s: &str) -> Result<Self, Self::Err> {
+                    const STRINGS: &'static [&'static str] = &[
+                        #(#string_keys,)*
+                    ];
+
+                    for (index, &key) in STRINGS.iter().enumerate() {
+                        if key == s {
+                            return Ok(#enum_name::#from_str_const_name[index]);
+                        }
+                    }
+
+                    Err(())
+                }
+            }
+        };
     }
 
     tokens.to_string()

@@ -1,4 +1,4 @@
-use crate::{error::OptionsError, validation};
+use crate::{error::OptionsError, format::Format, validation};
 
 /// Options for serde support.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -80,6 +80,12 @@ pub enum IntSize {
 /// Options for configuring the generation of a struct.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StructOptions {
+    /// The format of the source data.
+    ///
+    /// Defaults to `None` which will cause it to be inferred from the
+    /// file type.
+    pub format: Option<Format>,
+
     /// The name of the resulting struct.
     ///
     /// Defaults to `"Config"`.
@@ -219,6 +225,7 @@ impl Default for StructOptions {
     /// use config_struct::*;
     ///
     /// let default_options = StructOptions {
+    ///     format: None,
     ///     struct_name: "Config".to_owned(),
     ///     const_name: None,
     ///     generate_const: true,
@@ -240,6 +247,7 @@ impl Default for StructOptions {
     /// ```
     fn default() -> Self {
         StructOptions {
+            format: None,
             struct_name: "Config".to_owned(),
             const_name: None,
             generate_const: true,
@@ -260,6 +268,12 @@ impl Default for StructOptions {
 /// Options for configuring the generation of a struct.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EnumOptions {
+    /// The format of the source data.
+    ///
+    /// Defaults to `None` which will cause it to be inferred from the
+    /// file type.
+    pub format: Option<Format>,
+
     /// The name of the resulting enum.
     ///
     /// Defaults to `"Key"`.
@@ -268,6 +282,9 @@ pub struct EnumOptions {
     /// The name of the const slice containing all variants.
     /// For example, if you specify `Some("ALL")`, then
     /// `MyEnum::ALL` will contain all variants of the enum.
+    ///
+    /// If you specify `None` then no constant will be
+    /// generated.
     ///
     /// Defaults to `Some("ALL")`.
     pub all_variants_const: Option<String>,
@@ -287,6 +304,19 @@ pub struct EnumOptions {
     ///
     /// Defaults to `true`.
     pub first_variant_is_default: bool,
+
+    /// Whether to implement the `Display` trait for this enum.
+    /// This requires the `Debug` trait to be implemented.
+    ///
+    /// Defaults to `true`.
+    pub impl_display: bool,
+
+    /// Whether to implement the `FromStr` trait for this enum.
+    /// This requires the `all_variants_const` to be set to
+    /// something other than `None`.
+    ///
+    /// Defaults to `true`.
+    pub impl_from_str: bool,
 
     /// Shorthand for generating the Serialize and Deserialize
     /// traits.
@@ -355,6 +385,7 @@ impl Default for EnumOptions {
     /// use config_struct::*;
     ///
     /// let default_options = EnumOptions {
+    ///     format: None,
     ///     enum_name: "Key".to_owned(),
     ///     all_variants_const: Some("ALL".to_owned()),
     ///     derived_traits: vec![
@@ -368,6 +399,8 @@ impl Default for EnumOptions {
     ///         "Hash".to_owned(),
     ///     ],
     ///     first_variant_is_default: true,
+    ///     impl_display: true,
+    ///     impl_from_str: true,
     ///     serde_support: SerdeSupport::No,
     ///     use_serde_derive_crate: false,
     ///     create_dirs: true,
@@ -377,6 +410,7 @@ impl Default for EnumOptions {
     /// ```
     fn default() -> Self {
         EnumOptions {
+            format: None,
             enum_name: "Key".to_owned(),
             all_variants_const: Some("ALL".to_owned()),
             derived_traits: vec![
@@ -390,6 +424,8 @@ impl Default for EnumOptions {
                 "Hash".to_owned(),
             ],
             first_variant_is_default: true,
+            impl_display: true,
+            impl_from_str: true,
             serde_support: SerdeSupport::default(),
             use_serde_derive_crate: false,
             create_dirs: true,

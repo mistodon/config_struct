@@ -7,7 +7,7 @@ use crate::error::*;
 /// The variants that exist correspond to the features that have been enabled.
 /// For example, if the `json-parsing` feature is not enabled, then the
 /// `Format::Json` variant will not exist.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Format {
     #[cfg(feature = "json-parsing")]
     Json,

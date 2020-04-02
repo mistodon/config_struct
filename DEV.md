@@ -1,29 +1,30 @@
 Development
 ===
 
-## Housekeeping
+## Soon:
 
-- [ ] Error when generate_load_fns without Deserialize
-- [x] Update CI config
-    - [x] Ensure it works, obviously
-    - [x] With formatting
-    - [x] With clippy (not nightly)
-    - [x] Make it call ./alltests script to avoid duplication?
-- [x] Reintroduce write_only_if_changed option
-    - This is to prevent recompilation when config.rs hasn't actually changed. Can't do this with a .gitignore alone.
-- [x] Remove need for serde/load_fns in default features/options
-    - This is so the default StructOptions compile without any other crates present.
-- [x] Have serde_support as an option, so you don't need to specify it in derived traits
-    - [x] And test
-- [ ] Once-over the docs
+- [x] Remove `_with_format` variants of functions in lieu of an `Option<Format>` field in the Options structs.
+- [x] Document enum generation
+- [ ] Document enum generation at the top level, and in README
+- [x] Document that leaving out the const name will not generate a const
+- [x] Add options to implement Display and FromStr
+- [ ] Add tests for enum generation
+- [ ] Go over docs and README
+- [ ] Release
+- [ ] Add feature-gated generation of an enum from filenames in a directory
+    - Should be (option for) repr(<int-type>)
+    - Should be guaranteed to be alphabetical
+    - And ignore subdirectories
+    - Should have a const method to return the original filename
+    - Should ignore the full parent path - since that's known at generation time
+- [ ] Release again
+- [ ] Address TODOs
 
-## Need to:
-1.  `StructOptions.force_numbers_to_float` (unless it's not required?)
-2.  Fix issues with RON parsing - documented in that module
-3.  Fix up remaining unwraps/expects/unreachables/unimplementeds and return errors
-4.  Improve test coverage - particularly unit tests
+## Maybe:
+- [ ] Consider replacing struct generation with use of the `quote!` crate
 
-## Want to:
+
+## Eventually:
 1.  Try to avoid generating the same structs twice
 2.  Move to a more elegant method of code generation (quote! macro?)
 3.  Move to a more elegant method of comparing types (not strings!!)
@@ -34,6 +35,6 @@ Development
     -   `[1.0, "hello"]` should throw a useful error
     -   `[{"a": 1}, {"b": 5.0}]` should resolve to `[struct {a: Option<i64>, b: Option<f64>}]`
 5.  Possibly allow some kind of type hints in the config itself
-    -   e.g. `{"a_f32": 1.0, "b_f64": 1.0}`
+    -   e.g. `{"a__f32": 1.0, "b__f64": 1.0}`
 6.  And also possibly custom structs to be imported
-    -   e.g. `{ "a_MyStruct": {...}}` => `use MyStruct; ...` etc.
+    -   e.g. `{ "a__MyStruct": {...}}` => `use MyStruct; ...` etc.
