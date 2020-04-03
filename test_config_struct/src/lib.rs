@@ -3,7 +3,10 @@
 mod config;
 
 mod json_tests {
-    use crate::config::json::{Config, CONFIG};
+    use crate::config::{
+        json::{Config, CONFIG},
+        json_enum::Key,
+    };
 
     #[test]
     fn test_declarations() {
@@ -53,12 +56,20 @@ mod json_tests {
         let empty: &[()] = &[];
         assert_eq!(CONFIG.empty, empty);
     }
+
+    #[test]
+    fn test_enum() {
+        assert_eq!(Key::ALL, &[Key::A, Key::B, Key::C]);
+    }
 }
 
 mod ron_tests {
     use ron;
 
-    use crate::config::ron::{RonConfig, RONCONFIG};
+    use crate::config::{
+        ron::{RonConfig, RONCONFIG},
+        ron_enum::RonEnum,
+    };
 
     #[test]
     fn test_declarations() {
@@ -108,12 +119,20 @@ mod ron_tests {
         assert_eq!(RONCONFIG.objects[1].name, "Thing 2");
         assert_eq!(RONCONFIG.objects[1].index, 1);
     }
+
+    #[test]
+    fn test_enum() {
+        assert_eq!(RonEnum::ALL, &[RonEnum::A, RonEnum::B, RonEnum::C]);
+    }
 }
 
 mod toml_tests {
     use toml;
 
-    use crate::config::toml::{TomlConfig, TOMLCONFIG};
+    use crate::config::{
+        toml::{TomlConfig, TOMLCONFIG},
+        toml_enum::TomlEnum,
+    };
 
     #[test]
     fn test_declarations() {
@@ -184,13 +203,21 @@ mod toml_tests {
         let empty: &[()] = &[];
         assert_eq!(TOMLCONFIG.empty, empty);
     }
+
+    #[test]
+    fn test_enum() {
+        assert_eq!(TomlEnum::ALL, &[TomlEnum::A, TomlEnum::B, TomlEnum::C]);
+    }
 }
 
 mod yaml_tests {
     use serde_yaml;
     use std;
 
-    use crate::config::yaml::{YamlConfig, YAML_CONFIG};
+    use crate::config::{
+        yaml::{YamlConfig, YAML_CONFIG},
+        yaml_enum::YamlEnum,
+    };
 
     #[test]
     fn test_declarations() {
@@ -239,5 +266,10 @@ mod yaml_tests {
     fn test_empty_array_is_array_of_unit() {
         let empty: &[()] = &[];
         assert_eq!(YAML_CONFIG.empty, empty);
+    }
+
+    #[test]
+    fn test_enum() {
+        assert_eq!(YamlEnum::VALUES, &[YamlEnum::A, YamlEnum::B, YamlEnum::C]);
     }
 }
