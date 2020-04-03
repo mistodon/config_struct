@@ -23,8 +23,10 @@ json-parsing = ["serde_json"]
 ron-parsing = ["ron"]
 toml-parsing = ["toml"]
 yaml-parsing = ["serde_yaml"]
+experimental-files-enum = ["case"]
 
 [dependencies]
+case = { version = "~1.0.0", optional = true }
 failure = "~0.1.1"
 linear-map = { version = "~1.2.0", features = ["serde_impl"] }
 quote = "~1.0.2"

@@ -152,6 +152,9 @@ mod toml_parsing;
 #[cfg(feature = "yaml-parsing")]
 mod yaml_parsing;
 
+#[cfg(feature = "experimental-files-enum")]
+pub mod files_enum;
+
 mod enums;
 mod structs;
 
