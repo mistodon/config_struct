@@ -9,9 +9,9 @@ Development
 - [x] Document that leaving out the const name will not generate a const
 - [x] Add options to implement Display and FromStr
 - [x] Add tests for enum generation
-- [ ] Go over docs and README
-- [ ] Release
-- [ ] Add feature-gated generation of an enum from filenames in a directory
+- [x] Go over docs and README
+- [x] Release
+- [/] Add feature-gated generation of an enum from filenames in a directory
     - Should be (option for) repr(<int-type>)
     - Should be guaranteed to be alphabetical
     - And ignore subdirectories

@@ -6,7 +6,13 @@ edition = "2018"
 
 [build-dependencies.config_struct]
 path = ".."
-features = ["json-parsing", "ron-parsing", "toml-parsing", "yaml-parsing"]
+features = [
+    "json-parsing",
+    "ron-parsing",
+    "toml-parsing",
+    "yaml-parsing",
+    "experimental-files-enum",
+]
 
 [dev-dependencies]
 ron = "~0.3.0"

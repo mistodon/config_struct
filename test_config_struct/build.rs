@@ -137,4 +137,15 @@ fn main() {
         },
     )
     .unwrap();
+
+    config_struct::files_enum::create_files_enum(
+        "files_enum_files",
+        "src/config/files_enum.rs",
+        &EnumOptions {
+            enum_name: "FileKey".to_owned(),
+            ..EnumOptions::serde_default()
+        },
+    )
+    .unwrap();
+
 }
