@@ -5,10 +5,10 @@ Development
 
 - [x] Remove `_with_format` variants of functions in lieu of an `Option<Format>` field in the Options structs.
 - [x] Document enum generation
-- [ ] Document enum generation at the top level, and in README
+- [x] Document enum generation at the top level, and in README
 - [x] Document that leaving out the const name will not generate a const
 - [x] Add options to implement Display and FromStr
-- [ ] Add tests for enum generation
+- [x] Add tests for enum generation
 - [ ] Go over docs and README
 - [ ] Release
 - [ ] Add feature-gated generation of an enum from filenames in a directory

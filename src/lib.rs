@@ -1,10 +1,10 @@
-//! This crate is a library for generating structs based on a config
+//! This crate is a library for generating structs and enums based on a config
 //! file at build time. It is intended for use in a `build.rs` file
 //! so should be included in your `[build-dependencies]`.
 //!
 //! ```toml
 //! [build-dependencies.config_struct]
-//! version = "~0.3.0"
+//! version = "~0.4.0"
 //! features = ["toml-parsing"]
 //! ```
 //!
@@ -21,6 +21,8 @@
 //! the features you need in your `Cargo.toml` file.
 //!
 //! # Examples
+//!
+//! ## Structs
 //!
 //! ```rust,no_run
 //! // build.rs
@@ -71,6 +73,72 @@
 //! Strings and arrays are represented by `Cow` types, which allows
 //! the entire Config struct to be either heap allocated at runtime,
 //! or a compile time constant, as shown above.
+//!
+//! ## Enums
+//!
+//! ```rust,no_run
+//! // build.rs
+//! use config_struct::{Error, EnumOptions};
+//!
+//! fn main() -> Result<(), Error> {
+//!     config_struct::create_enum(
+//!         "items.yaml",
+//!         "src/items.rs",
+//!         &EnumOptions::default())
+//! }
+//! ```
+//!
+//! The above build script will take the following `items.yaml` file and generate
+//! a (not-formatted) `items.rs` like the following:
+//!
+//! ```yaml
+//! # items.yaml
+//! ItemOne:
+//!     - data
+//! ItemTwo:
+//!     - more
+//!     - data
+//! ```
+//!
+//! ```rust,no_run
+//! // items.rs
+//! // ...
+//! #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+//! pub enum Key {
+//!     ItemOne,
+//!     ItemTwo,
+//! }
+//! impl Key {
+//!     pub const ALL: &'static [Key] = &[Key::ItemOne, Key::ItemTwo];
+//! }
+//! impl Default for Key {
+//!     fn default() -> Self {
+//!         Self::ItemOne
+//!     }
+//! }
+//! impl std::fmt::Display for Key {
+//!     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+//!         write!(f, "{:?}", self)
+//!     }
+//! }
+//! impl std::str::FromStr for Key {
+//!     type Err = ();
+//!     fn from_str(s: &str) -> Result<Self, Self::Err> {
+//!         const STRINGS: &'static [&'static str] = &["ItemOne", "ItemTwo"];
+//!         for (index, &key) in STRINGS.iter().enumerate() {
+//!             if key == s {
+//!                 return Ok(Key::ALL[index]);
+//!             }
+//!         }
+//!         Err(())
+//!     }
+//! }
+//! ```
+//!
+//! As you can see, this provides more functionality out-of-the-box - most of
+//! which could be disabled in the `EnumOptions`. The intended purpose of
+//! this is to have a small efficient type to use as a key into the data stored
+//! in the initial config file.
 
 #[cfg(feature = "json-parsing")]
 mod json_parsing;

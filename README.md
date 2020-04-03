@@ -5,7 +5,7 @@ This is a library for converting config files into matching source files at buil
 
 [![Build Status](https://travis-ci.org/mistodon/config_struct.svg?branch=master)](https://travis-ci.org/mistodon/config_struct)
 [![Crates.io](https://img.shields.io/crates/v/config_struct.svg)](https://crates.io/crates/config_struct)
-[![Docs.rs](https://docs.rs/config_struct/badge.svg)](https://docs.rs/config_struct/0.3.0/config_struct/)
+[![Docs.rs](https://docs.rs/config_struct/badge.svg)](https://docs.rs/config_struct/0.4.0/config_struct/)
 
 ## Usage
 
@@ -13,7 +13,7 @@ This library is intended to be used in a `build.rs` file, so it needs to be adde
 
 ```toml
 [build-dependencies.config_struct]
-version = "~0.3.0"
+version = "~0.4.0"
 features = ["toml-parsing"]
 ```
 
@@ -92,4 +92,70 @@ There are a few different ways to access the config at runtime.
 
 The first method is recommended, as it will return the const value in release mode, but load from the filesystem in debug mode. This gives you flexibility during development and immutability in release.
 
+### Enums
 
+Enum generation works in a similar way to structs, but for the keys of a map.
+
+```rust
+// build.rs
+use config_struct::{Error, EnumOptions};
+
+fn main() -> Result<(), Error> {
+    config_struct::create_enum(
+        "items.yaml",
+        "src/items.rs",
+        &EnumOptions::default())
+}
+```
+
+The above build script will take the following `items.yaml` file and generate
+a (not-formatted) `items.rs` like the following:
+
+```yaml
+# items.yaml
+ItemOne:
+    - data
+ItemTwo:
+    - more
+    - data
+```
+
+```rust
+// items.rs
+// ...
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Key {
+    ItemOne,
+    ItemTwo,
+}
+impl Key {
+    pub const ALL: &'static [Key] = &[Key::ItemOne, Key::ItemTwo];
+}
+impl Default for Key {
+    fn default() -> Self {
+        Self::ItemOne
+    }
+}
+impl std::fmt::Display for Key {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+impl std::str::FromStr for Key {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        const STRINGS: &'static [&'static str] = &["ItemOne", "ItemTwo"];
+        for (index, &key) in STRINGS.iter().enumerate() {
+            if key == s {
+                return Ok(Key::ALL[index]);
+            }
+        }
+        Err(())
+    }
+}
+```
+
+As you can see, this provides more functionality out-of-the-box - most of
+which could be disabled in the `EnumOptions`. The intended purpose of
+this is to have a small efficient type to use as a key into the data stored
+in the initial config file.
