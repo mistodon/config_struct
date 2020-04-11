@@ -18,14 +18,16 @@ pub fn generate_files_enum<P: AsRef<Path>>(
     for entry in std::fs::read_dir(dirpath)? {
         let entry = entry?;
         if entry.file_type()?.is_file() {
-            keys.push(
-                entry
+            let variant_name = entry
                     .path()
                     .file_stem()
                     .expect("TODO:")
                     .to_string_lossy()
-                    .to_camel()
-            );
+                    .to_camel();
+
+            if !variant_name.starts_with('.') {
+                keys.push(variant_name);
+            }
         }
     }
 
