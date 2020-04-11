@@ -29,7 +29,7 @@ experimental-files-enum = ["case"]
 case = { version = "~1.0.0", optional = true }
 failure = "~0.1.1"
 linear-map = { version = "~1.2.0", features = ["serde_impl"] }
-quote = "~1.0.2"
+quote = "~1.0.3"
 ron = { version = "~0.3.0", optional = true }
 serde_json = { version = "~1.0.24", optional = true }
 serde_yaml = { version = "~0.7.5", optional = true }
