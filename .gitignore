@@ -1,8 +1,0 @@
-target/
-**/*.rs.bk
-Cargo.lock
-*.swp
-test_config_struct/src/config/*.rs
-!test_config_struct/src/config/mod.rs
-test_config_struct/tests/config/*.rs
-test_config_struct/tests/temp/*
