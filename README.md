@@ -1,6 +1,8 @@
 config_struct
 ===
 
+## NOTE: This crate is deprecated. See https://github.com/mistodon/edres for its replacement.
+
 This is a library for converting config files into matching source files at build time.
 
 [![Build Status](https://travis-ci.org/mistodon/config_struct.svg?branch=master)](https://travis-ci.org/mistodon/config_struct)
